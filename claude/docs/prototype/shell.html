@@ -1,0 +1,64 @@
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/home">Cue</a>
+    <nav class="nav" id="nav">
+      <a href="#/home" data-route="home">Home</a>
+      <a href="#/library" data-route="library">My Library</a>
+      <a href="#/people" data-route="people">People</a>
+    </nav>
+    <span class="spacer"></span>
+    <div class="anon-actions">
+      <a class="pill" href="#/signin">Sign in</a>
+      <a class="btn sm" href="#/signup">Create account</a>
+    </div>
+    <button class="iconbtn" data-act="open-palette" aria-label="Search" title="Search (⌘K)">
+      <span class="glyph">⌕</span><span class="kbd">⌘K</span>
+    </button>
+    <a class="avatar" href="#/profile" data-route="profile" title="Profile">M</a>
+    <button class="iconbtn menubtn" data-act="toggle-menu" aria-label="Menu" aria-expanded="false"><span class="glyph">☰</span></button>
+  </header>
+
+  <div class="drawer-scrim" id="drawer" hidden="">
+    <div class="drawer-wrap">
+      <button class="closebtn" data-act="toggle-menu">Close <span>×</span></button>
+      <nav class="drawer" aria-label="Menu">
+        <span class="drawer-label">Sections</span>
+        <a href="#/home"><i>01</i>Home<span class="arw">⟶</span></a>
+        <a href="#/library"><i>02</i>My Library<span class="arw">⟶</span></a>
+        <a href="#/people"><i>03</i>People<span class="arw">⟶</span></a>
+        <a href="#/profile"><i>04</i>Profile<span class="arw">⟶</span></a>
+        <button class="drawer-search" data-act="open-palette"><i>⌕</i>Search titles<span class="arw">⌘K</span></button>
+      </nav>
+    </div>
+  </div>
+
+  <main id="view" class="view"></main>
+
+  <footer class="pagefoot">
+    <span>Cue is not where you watch. Cue is where you keep track of what you watch.</span>
+    <span class="mono">FIND IT → TRACK IT → WATCH IT → REMEMBER IT</span>
+  </footer>
+
+  <div class="scrim" id="palette" hidden="">
+    <div class="palette" role="dialog" aria-modal="true" aria-label="Search">
+      <div class="palette-head">
+        <span class="glyph">⌕</span>
+        <input id="q" type="text" autocomplete="off" spellcheck="false" placeholder="Search movies, shows and anime">
+        <button class="kbd-btn" data-act="close-palette">ESC</button>
+      </div>
+      <div class="palette-body">
+        <div class="palette-list" id="palette-list"></div>
+        <aside class="palette-preview" id="palette-preview"></aside>
+      </div>
+      <div class="palette-foot">
+        <span class="hint"><b class="kbd-btn">↑↓</b> MOVE</span>
+        <span class="hint"><b class="kbd-btn">↵</b> OPEN</span>
+        <span class="hint"><b class="kbd-btn">ESC</b> CLOSE</span>
+        <span class="spacer"></span>
+        <span class="mono" id="palette-count"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scrim" id="picker" hidden=""></div>
+  <div id="hovercard" hidden=""></div>
