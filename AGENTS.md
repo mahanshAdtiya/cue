@@ -52,7 +52,7 @@ One rule per directory:
 | `components/` | presentational UI | must not touch the database |
 | `actions/` | `'use server'` mutations | thin: auth → validate → call `lib/db` → revalidate |
 | `lib/db/` | all SQL | **zero Next.js imports** |
-| `lib/tmdb/` | external media API | server-only; the key never reaches the client |
+| `lib/tmdb/` | external media API | server-only; the key never reaches the client — see `claude/docs/tmdb-api.md` |
 
 **Every route lives in a group, and the group is the auth posture.** There are
 two, and a route belongs to exactly one:
@@ -136,6 +136,12 @@ is TypeScript, React and Tailwind under the directories in the table above.
 
 ## Where things live
 
+- `claude/docs/tmdb-api.md` — **read this before writing or changing anything
+  that touches TMDB.** Auth, the full error-code table, rate limiting, caching,
+  pagination limits, which endpoints carry `media_type`, `append_to_response`,
+  image sizes and URL building, languages, regions, changes, and the attribution
+  we owe them. Claims are marked **[live]** (verified against the real API) or
+  **[docs]**; **[live]** wins.
 - `claude/prototype/website/` — the original design prototype, unpacked.
   **Read this, not `website.html`, which is the bundle.**
   - `js/01-toast.js` … `js/18-boot.js` — 18 modules in load order. State model is
