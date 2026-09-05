@@ -11,7 +11,7 @@ import { NAV_LINKS, TOP_BAR_SKELETON } from "@/lib/constants";
 
 export function TopBar({ children }: { children: ReactNode }) {
   return (
-    <header className="border-line bg-veil px-pad mobile:h-[62px] mobile:gap-[clamp(12px,2vw,26px)] sticky top-0 z-40 flex h-14 items-center gap-2.5 border-b backdrop-blur-[8px]">
+    <header className="border-line bg-veil-4 px-pad mobile:h-[62px] mobile:gap-[clamp(12px,2vw,26px)] sticky top-0 z-40 flex h-14 items-center gap-2.5 border-b backdrop-blur-[8px]">
       <Link href="/" className="text-fg hover:text-fg font-serif text-[25px]">
         Cue
       </Link>

@@ -49,6 +49,7 @@
   --color-veil: rgba(11, 11, 12, .96);
   --color-veil-2: rgba(11, 11, 12, .90);
   --color-veil-3: rgba(11, 11, 12, .84);
+  --color-veil-4: rgba(11, 11, 12, .66);
 
   --font-serif: var(--font-instrument-serif, Georgia), Georgia, serif;
   --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -89,6 +90,8 @@
 
 :root {
   --dur: .22s;
+  --wash: radial-gradient(120% 80% at 50% 8%, var(--color-gold-08), transparent 62%);
+  --wash-splash: radial-gradient(120% 80% at 15% 88%, var(--color-gold-08), transparent 62%);
 }
 
 @layer base {
@@ -101,6 +104,20 @@
   }
 
   html:has([data-splash]) { overflow: hidden }
+
+  /* The gold wash, site-wide. A fixed pseudo-element rather than a background on
+     html: the root's background scales to the document, so on a long page the
+     gradient stretches until it is invisible. Fixed to the viewport it reads the
+     same on every route. Not a flex item — fixed positioning takes it out of
+     flow — and behind content, but above the canvas colour, at z-index -1. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--wash);
+  }
 
   body {
     min-height: 100svh;

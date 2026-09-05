@@ -72,20 +72,14 @@ export function Splash() {
 
   return (
     <div
-      /* globals.css locks scrolling off this attribute */
       data-splash
       role="status"
       aria-live="polite"
       aria-label={`Loading ${SPLASH_WORD}`}
-      className={`bg-bg text-fg fixed inset-0 z-[300] grid grid-rows-[1fr_auto] p-[clamp(20px,4vw,44px)] ${leaving ? "animate-splash-lift" : ""}`}
+      className={`bg-bg text-fg bg-[image:var(--wash-splash)] fixed inset-0 z-[300] grid grid-rows-[1fr_auto] p-[clamp(20px,4vw,44px)] ${leaving ? "animate-splash-lift" : ""}`}
     >
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_8%,var(--color-gold-08),transparent_62%)]"
-      />
-
       <div
-        className={`relative z-1 flex flex-col items-center justify-center gap-[clamp(14px,2.4vw,22px)] text-center ${leaving ? "animate-splash-sink" : ""}`}
+        className={`flex flex-col items-center justify-center gap-[clamp(14px,2.4vw,22px)] text-center ${leaving ? "animate-splash-sink" : ""}`}
       >
         <div className="flex gap-[.02em] font-serif text-[clamp(66px,16vw,190px)] leading-[.86] tracking-[-.02em]">
           {[...SPLASH_WORD].map((letter, index) => (
@@ -108,7 +102,7 @@ export function Splash() {
       </div>
 
       <div
-        className={`relative z-1 flex flex-col gap-3 ${leaving ? "animate-splash-sink" : "animate-splash-fade [animation-delay:200ms]"}`}
+        className={`flex flex-col gap-3 ${leaving ? "animate-splash-sink" : "animate-splash-fade [animation-delay:200ms]"}`}
       >
         <div className="text-mut-2 flex items-baseline gap-3.5 font-mono text-mini tracking-[.16em] uppercase">
           <span className="text-fg-2 grid">
