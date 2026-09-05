@@ -1,5 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { Instrument_Serif } from "next/font/google";
+import { Suspense } from "react";
+
+import {
+  TopBar,
+  TopBarSession,
+  TopBarSessionFallback,
+} from "@/components/layout/top-bar";
+import { getCurrentUser } from "@/lib/auth/session";
+
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -24,10 +33,23 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
+async function Session() {
+  const user = await getCurrentUser();
+
+  return <TopBarSession user={user} />;
+}
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={instrumentSerif.variable}>
-      <body>{children}</body>
+      <body>
+        <TopBar>
+          <Suspense fallback={<TopBarSessionFallback />}>
+            <Session />
+          </Suspense>
+        </TopBar>
+        {children}
+      </body>
     </html>
   );
 }
