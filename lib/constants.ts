@@ -6,3 +6,15 @@ export const MIN_PASSWORD_LENGTH = 8;
 export const MAX_PASSWORD_LENGTH = 128;
 
 export const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
+
+export type NavLink = {
+  href: string;
+  label: string;
+  activeOn?: readonly string[];
+};
+
+export const NAV_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/library", label: "My Library", activeOn: ["/title"] },
+  { href: "/people", label: "People", activeOn: ["/person"] },
+] as const satisfies readonly NavLink[];
