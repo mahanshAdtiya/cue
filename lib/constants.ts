@@ -35,3 +35,13 @@ export const TOP_BAR_SKELETON = {
 export const ROUTE_LOAD_DELAY_MS = 90;
 export const ROUTE_LOAD_MINIMUM_MS = 420;
 export const ROUTE_LOAD_EXIT_MS = 220;
+
+/* The 404 poster strip. Eight slots with the third dashed out — the gap is the
+   whole illustration, so both numbers are fixed here rather than derived from
+   any real list. Slots rise in sequence once the copy above them has landed. */
+export const NOT_FOUND_STRIP = {
+  slots: 8,
+  missingIndex: 2,
+  riseDelayMs: 260,
+  riseStepMs: 30,
+} as const;
