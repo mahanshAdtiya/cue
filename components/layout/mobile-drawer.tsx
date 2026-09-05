@@ -1,38 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { RouteLoad } from "@/components/layout/route-load";
 import { IconButton } from "@/components/ui/icon-button";
 import { NAV_LINKS } from "@/lib/constants";
+import { useDisclosure } from "@/lib/hooks/use-disclosure";
 
 export function MobileDrawer() {
-  const [open, setOpen] = useState(false);
-  const pathname = usePathname();
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open]);
+  const { open, close, toggle } = useDisclosure({ lockScroll: true });
 
   return (
     <>
@@ -41,7 +18,7 @@ export function MobileDrawer() {
         aria-expanded={open}
         aria-controls="mobile-drawer"
         className="tablet:hidden"
-        onClick={() => setOpen((value) => !value)}
+        onClick={toggle}
       >
         ☰
       </IconButton>
@@ -51,7 +28,7 @@ export function MobileDrawer() {
           <div
             className="bg-scrim-2 animate-fade px-pad mobile:top-[62px] fixed inset-x-0 top-14 bottom-0 z-[39] flex items-start justify-end pt-4"
             onClick={(event) => {
-              if (event.target === event.currentTarget) setOpen(false);
+              if (event.target === event.currentTarget) close();
             }}
           >
             <nav
