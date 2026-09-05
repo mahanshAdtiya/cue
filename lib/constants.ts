@@ -30,6 +30,26 @@ export const NOT_FOUND_STRIP = {
   riseStepMs: 30,
 } as const;
 
+export type LandingStep = {
+  title: string;
+  body: string;
+};
+
+export const LANDING_STEPS = [
+  {
+    title: "Find it",
+    body: "Movies, shows and anime in one search. Wherever you actually watch them.",
+  },
+  {
+    title: "Track it",
+    body: "Three states and an episode count. Want to watch, watching, watched.",
+  },
+  {
+    title: "Remember it",
+    body: "Ratings, favorites, and a shared history with the people you watch with.",
+  },
+] as const satisfies readonly LandingStep[];
+
 export const SPLASH_WORD = "Cue";
 export const SPLASH_TAGLINE = "Keep track of what you watch";
 export const SPLASH_STEPS = [

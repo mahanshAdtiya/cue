@@ -65,7 +65,7 @@ export function AvatarMenu({ name, email }: { name: string; email: string }) {
           <form action={logout} className="contents">
             <button type="submit" className={ROW}>
               Log out
-              <span className={GLYPH}>⇥</span>
+              <span className={GLYPH}>⟶</span>
             </button>
           </form>
         </div>
