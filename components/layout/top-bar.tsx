@@ -6,6 +6,8 @@ import { NavLinks } from "@/components/layout/nav-links";
 import { Avatar } from "@/components/ui/avatar";
 import { buttonClass } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { NAV_LINKS, TOP_BAR_SKELETON } from "@/lib/constants";
 
 export function TopBar({ children }: { children: ReactNode }) {
   return (
@@ -46,11 +48,38 @@ export function TopBarSession({ user }: { user: { name: string } | null }) {
   );
 }
 
+/* Stands in for <TopBarSession> while getCurrentUser() resolves. It has to pick a
+   branch before the answer is known: shell.js picks the signed-in shape, so we do
+   too. Everything left of the right cluster holds still either way — only the
+   cluster itself widens if the visitor turns out to be anonymous. */
 export function TopBarSessionFallback() {
+  const { nav, icon, avatar } = TOP_BAR_SKELETON;
+
   return (
-    <div
-      aria-hidden
-      className="bg-w-04 ml-auto h-10 w-24 animate-pulse rounded-md"
-    />
+    <>
+      <span
+        aria-hidden
+        className="tablet:flex hidden shrink-0 gap-[clamp(14px,2vw,24px)]"
+      >
+        {NAV_LINKS.map((link) => (
+          <Skeleton key={link.href} w={nav.w[link.href]} h={nav.h} />
+        ))}
+      </span>
+
+      <span
+        role="status"
+        aria-label="Checking session"
+        className="mobile:gap-[clamp(12px,2vw,26px)] ml-auto flex items-center gap-2.5"
+      >
+        <Skeleton w={icon.w} h={icon.h} r="var(--radius-md)" />
+        <Skeleton w={avatar} h={avatar} shape="round" />
+        <Skeleton
+          w={icon.w}
+          h={icon.h}
+          r="var(--radius-md)"
+          className="tablet:hidden"
+        />
+      </span>
+    </>
   );
 }

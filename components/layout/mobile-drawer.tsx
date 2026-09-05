@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { RouteLoad } from "@/components/layout/route-load";
 import { IconButton } from "@/components/ui/icon-button";
 import { NAV_LINKS } from "@/lib/constants";
 
@@ -76,6 +77,7 @@ export function MobileDrawer() {
                   <span className="text-mut-2 group-hover:text-gold-2 ml-auto text-[13px] tracking-[.1em] transition duration-[var(--dur)] ease-cue group-hover:translate-x-1">
                     ⟶
                   </span>
+                  <RouteLoad label={link.label} />
                 </Link>
               ))}
             </nav>

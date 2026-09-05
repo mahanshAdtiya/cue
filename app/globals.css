@@ -73,6 +73,10 @@
   --animate-rise: rise .36s var(--ease-cue) both;
   --animate-pop: pop .22s var(--ease-cue) both;
   --animate-slidedown: slidedown .24s var(--ease-cue) both;
+  --animate-settle: settle .42s var(--ease-cue) both;
+  --animate-chip-in: chip-in .24s var(--ease-cue) both;
+  --animate-chip-out: chip-out .18s var(--ease-cue) both;
+  --animate-dot: dot 1s var(--ease-cue) infinite;
 
   --breakpoint-mobile: 45rem;
   --breakpoint-tablet: 56.25rem;
@@ -185,6 +189,20 @@
   text-transform: uppercase;
 }
 
+@utility sweep {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 20%, var(--color-w-06) 50%, transparent 80%);
+    transform: translateX(-100%);
+    animation: sweep 1.5s var(--ease-cue) infinite;
+  }
+}
+
 @utility no-scrollbar {
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none }
@@ -205,6 +223,26 @@
 @keyframes slidedown {
   from { opacity: 0; transform: translateY(-10px) }
   to { opacity: 1; transform: none }
+}
+@keyframes sweep {
+  from { transform: translateX(-100%) }
+  to { transform: translateX(100%) }
+}
+@keyframes settle {
+  from { opacity: 0; transform: translateY(6px) }
+  to { opacity: 1; transform: none }
+}
+@keyframes chip-in {
+  from { opacity: 0; transform: translate(-50%, -14px) scale(.96) }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1) }
+}
+@keyframes chip-out {
+  from { opacity: 1; transform: translate(-50%, 0) }
+  to { opacity: 0; transform: translate(-50%, -10px) }
+}
+@keyframes dot {
+  0%, 100% { opacity: 1; transform: scale(1) }
+  50% { opacity: .35; transform: scale(.7) }
 }
 
 @media (prefers-reduced-motion: reduce) {

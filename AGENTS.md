@@ -78,15 +78,53 @@ app/
   `border-line`, `px-pad` rather than arbitrary values.
 - We always make reusable components everything, we check the whole codebase before creating a new component and if we find a similar component we use that instead and if we find an older component which can be made into a resuable component we update that and then use that. 
 
+## Loading states
+
+**Every new component or feature declares which of the three loaders it uses.**
+Decide this when the component is designed, not after it feels slow. Sources live
+in `claude/prototype/loaders/`.
+
+| Loader | Use for | Cue mechanism |
+|---|---|---|
+| **Splash** | the cold first load of a session, once per browser | client curtain, `localStorage`-gated; **never** gates server-rendered HTML |
+| **Shell** | an area that renders now but whose content resolves later | `<Suspense>` with a skeleton fallback |
+| **RouteLoad** | moving between routes | top hairline + destination chip + veil over the outgoing view |
+
+- **A Shell skeleton must match the real element's box** — same width, height and
+  radius. A fallback that reserves the wrong space swaps a spinner for a layout
+  shift, which is worse. This is why the top bar needs one at all: the left side
+  is server-rendered instantly, the right side waits on the session.
+- **A route change uses two loaders together.** RouteLoad says *where you are
+  going*; the destination's `loading.tsx` skeleton says *what will be there*.
+- **Splash is only ever the first paint of a cold session.** Never for data
+  fetches, never for navigation.
+
+## Prototypes
+
+**Every standalone `.html`, `.js` or `.css` file goes in
+`claude/prototype/<feature>/`.** Nothing else. If you are asked to mock something
+up, sketch an interaction, or unpack a bundle to read it, that is where it lands —
+one directory per feature, named for the feature.
+
+`claude/prototype/` is gitignored. It is reference material and scratch space: it
+is read to understand a design, and ported into `app/` and `components/` by hand.
+It never ships, is never imported by application code, and no build step touches
+it. Vanilla JS and plain CSS there are fine — that is the point of it. Real work
+is TypeScript, React and Tailwind under the directories in the table above.
+
 ## Where things live
 
-- `claude/docs/website.html` — the original design prototype (a bundled
-  vanilla-JS SPA; not readable directly).
-- `claude/docs/prototype/` — that bundle unpacked. **Read this, not the HTML.**
+- `claude/prototype/website/` — the original design prototype, unpacked.
+  **Read this, not `website.html`, which is the bundle.**
   - `js/01-toast.js` … `js/18-boot.js` — 18 modules in load order. State model is
     in `03-state.js`, the views in `05-`…`10-`, TMDB adapter in `17-`.
   - `css/all.css` — the full original design system.
   - `shell.html` — top bar, footer and palette markup.
+- `claude/prototype/loaders/` — the loader prototype, unpacked.
+  **Read this, not `loader.html`, which is the bundle.**
+  - `js/splash.js`, `js/shell.js`, `js/route-loader.js` — the three loaders.
+  - `css/splash.css`, `css/shell.css`, `css/route-loader.css` — their styles.
+  - `demo.html` — the prototype page showing all three.
 - `app/globals.css` — the live design system: `@theme` tokens (surfaces, text,
   gold, scrims, type, radii, motion, breakpoints), `@layer base` element
-  defaults, and the `mono` / `no-scrollbar` utilities.
+  defaults, and the `mono` / `sweep` / `no-scrollbar` utilities.

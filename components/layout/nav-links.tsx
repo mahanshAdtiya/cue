@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { RouteLoad } from "@/components/layout/route-load";
 import { NAV_LINKS } from "@/lib/constants";
 import { isActive } from "@/lib/nav";
 
@@ -25,6 +26,7 @@ export function NavLinks() {
             className={`text-sm font-medium transition duration-[var(--dur)] ease-cue ${active ? "text-fg" : "text-mut hover:text-fg"}`}
           >
             {link.label}
+            <RouteLoad label={link.label} />
           </Link>
         );
       })}
