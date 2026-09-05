@@ -9,6 +9,18 @@ export const MAX_PASSWORD_LENGTH = 128;
 
 export const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
 
+export const SIGNED_IN_TOAST = {
+  kind: "success",
+  label: "Signed in",
+  message: "Welcome back.",
+} as const;
+
+export const SIGNED_OUT_TOAST = {
+  kind: "info",
+  label: "Signed out",
+  message: "You are signed out of Cue.",
+} as const;
+
 export type NavLink = {
   href: string;
   label: string;
@@ -21,6 +33,19 @@ export const NAV_LINKS = [
   { href: "/library", label: "My Library", activeOn: ["/title"] },
   { href: "/people", label: "People", activeOn: ["/person"] },
 ] as const satisfies readonly NavLink[];
+
+export type ToastKind = "success" | "error" | "info";
+
+export const TOAST_KINDS = {
+  success: { icon: "✓", label: "Done" },
+  error: { icon: "✕", label: "Problem" },
+  info: { icon: "ℹ", label: "Heads up" },
+} as const satisfies Record<ToastKind, { icon: string; label: string }>;
+
+export const TOAST_MAX = 4;
+export const TOAST_DURATION_MS = 4200;
+export const TOAST_EXIT_MS = 220;
+export const EMPTY_TOASTS: never[] = [];
 
 export const ROUTE_LOAD_DELAY_MS = 90;
 export const ROUTE_LOAD_MINIMUM_MS = 420;

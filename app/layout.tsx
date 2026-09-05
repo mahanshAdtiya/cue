@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Instrument_Serif } from "next/font/google";
 
 import { Splash } from "@/components/layout/splash";
+import { Toaster } from "@/components/ui/toaster";
 
 import "./globals.css";
 
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         {children}
         <Splash />
+        <Toaster />
       </body>
     </html>
   );

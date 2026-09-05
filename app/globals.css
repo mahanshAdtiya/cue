@@ -78,6 +78,9 @@
   --animate-chip-in: chip-in .24s var(--ease-cue) both;
   --animate-chip-out: chip-out .18s var(--ease-cue) both;
   --animate-dot: dot 1s var(--ease-cue) infinite;
+  --animate-toast-in: toast-in .26s var(--ease-cue) both;
+  --animate-toast-out: toast-out .2s var(--ease-cue) both;
+  --animate-toast-shrink: toast-shrink linear forwards;
   --animate-splash-rise: splash-rise .62s var(--ease-cue) both;
   --animate-splash-fade: splash-fade .5s var(--ease-cue) both;
   --animate-splash-sink: splash-sink .34s var(--ease-cue) both;
@@ -266,6 +269,18 @@
 @keyframes dot {
   0%, 100% { opacity: 1; transform: scale(1) }
   50% { opacity: .35; transform: scale(.7) }
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(18px) scale(.99) }
+  to { opacity: 1; transform: none }
+}
+@keyframes toast-out {
+  from { opacity: 1 }
+  to { opacity: 0; transform: translateX(14px) }
+}
+@keyframes toast-shrink {
+  from { transform: scaleX(1) }
+  to { transform: scaleX(0) }
 }
 @keyframes splash-rise {
   from { opacity: 0; transform: translateY(38px) }

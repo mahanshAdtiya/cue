@@ -8,7 +8,7 @@ import { INVALID_CREDENTIALS_MESSAGE } from "@/lib/constants";
 import { createUserWithPassword, findUserByEmail } from "@/lib/db/users";
 import { loginSchema, registerSchema } from "@/lib/validation/auth";
 
-export type AuthState = { error?: string };
+export type AuthState = { error?: string; ok?: boolean };
 
 export async function register(
   _prevState: AuthState,
@@ -55,7 +55,7 @@ export async function login(
 
   await createUserSession(user.id);
 
-  redirect("/");
+  return { ok: true };
 }
 
 export async function logout() {

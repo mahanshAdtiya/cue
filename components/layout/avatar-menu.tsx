@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useTransition } from "react";
 
 import { logout } from "@/actions/auth";
 import { RouteLoad } from "@/components/layout/route-load";
 import { Avatar } from "@/components/ui/avatar";
+import { SIGNED_OUT_TOAST } from "@/lib/constants";
 import { useDisclosure } from "@/lib/hooks/use-disclosure";
+import { toast } from "@/lib/toast/store";
 
 const ROW =
   "border-line hover:bg-w-04 hover:text-gold-2 text-fg group flex min-h-[62px] w-full items-center border-b px-[18px] font-mono text-sm tracking-[.08em] uppercase last:border-b-0";
@@ -16,6 +18,13 @@ const GLYPH =
 export function AvatarMenu({ name, email }: { name: string; email: string }) {
   const { open, close, toggle } = useDisclosure();
   const root = useRef<HTMLDivElement>(null);
+  const [signingOut, startSignOut] = useTransition();
+
+  const signOut = () =>
+    startSignOut(async () => {
+      toast.show(SIGNED_OUT_TOAST);
+      await logout();
+    });
 
   useEffect(() => {
     if (!open) return;
@@ -62,12 +71,15 @@ export function AvatarMenu({ name, email }: { name: string; email: string }) {
             <RouteLoad label="Profile" />
           </Link>
 
-          <form action={logout} className="contents">
-            <button type="submit" className={ROW}>
-              Log out
-              <span className={GLYPH}>⟶</span>
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={signOut}
+            disabled={signingOut}
+            className={ROW}
+          >
+            {signingOut ? "Logging out…" : "Log out"}
+            <span className={GLYPH}>⟶</span>
+          </button>
         </div>
       )}
     </div>
