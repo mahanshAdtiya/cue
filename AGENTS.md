@@ -76,6 +76,7 @@ app/
   by `next dev` / `next build`. No import needed.
 - Styling comes from tokens, not literals. Reach for `bg-bg-2`, `text-mut`,
   `border-line`, `px-pad` rather than arbitrary values.
+- We always make reusable components everything, we check the whole codebase before creating a new component and if we find a similar component we use that instead and if we find an older component which can be made into a resuable component we update that and then use that. 
 
 ## Where things live
 
@@ -89,9 +90,3 @@ app/
 - `app/globals.css` — the live design system: `@theme` tokens (surfaces, text,
   gold, scrims, type, radii, motion, breakpoints), `@layer base` element
   defaults, and the `mono` / `no-scrollbar` utilities.
-
-The prototype is **reference, not truth.** It stores per-user state in
-`localStorage` and asks the user to paste their own TMDB key — both workarounds
-for having no server. Don't port those.
-
-
