@@ -3,13 +3,6 @@ import Link from "next/link";
 import { buttonClass } from "@/components/ui/button";
 import { NOT_FOUND_STRIP } from "@/lib/constants";
 
-/* Renders inside the root layout, so the top bar comes for free — nothing about
-   the shell changes to show a 404. This is also why it stays a Server Component:
-   the page is static markup, and the only interactive thing on it (the palette)
-   belongs to the shell, not here.
-
-   Loader: none of the three. A terminal state with no data to fetch has nothing
-   to wait on, and RouteLoad already covers the navigation that lands here. */
 export default function NotFound() {
   const { slots, missingIndex, riseDelayMs, riseStepMs } = NOT_FOUND_STRIP;
 
@@ -41,9 +34,6 @@ export default function NotFound() {
         </Link>
       </div>
 
-      {/* Ornament, not content: the copy above already says what happened, so
-          the grid is hidden from assistive tech rather than read out as a row
-          of empty boxes. */}
       <div className="animate-rise flex flex-col gap-3 [animation-delay:240ms]">
         <div className="flex items-center gap-3.5">
           <span className="mono">Missing entry</span>
