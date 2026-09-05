@@ -1,3 +1,4 @@
+import type { MediaType } from "@/lib/db/schema/media";
 import type { UserMediaStatus } from "@/lib/db/schema/user-media";
 
 export const SESSION_TOKEN_BYTES = 32;
@@ -122,3 +123,36 @@ export const TMDB_TRENDING_WINDOW = "week";
 export const TMDB_SEARCH_ATTEMPTS = 1;
 export const TMDB_FIRST_PAGE = 1;
 export const TMDB_MAX_PAGE = 500;
+
+export const MEDIA_TYPE_LABELS = {
+  MOVIE: "Movie",
+  TV_SHOW: "Show",
+} as const satisfies Record<MediaType, string>;
+
+export const MEDIA_HUE_STEPS = 360;
+export const MEDIA_HUE_SEED = 31;
+export const MEDIA_SEPARATOR = " \u00b7 ";
+export const MEDIA_RATING_GLYPH = "\u2605";
+export const MEDIA_RATING_DECIMALS = 1;
+
+export const MEDIA_CARD_SIZES = "(max-width: 45rem) 33vw, 150px";
+export const HOVER_CARD_SIZES = "(max-width: 45rem) 60vw, 260px";
+
+export const HOVER_POINTER_QUERY = "(hover: hover) and (pointer: fine)";
+export const HOVER_OPEN_DELAY_MS = 380;
+export const HOVER_CLOSE_DELAY_MS = 240;
+export const HOVER_TRANSITION_MS = 300;
+export const HOVER_CARD_SCALE = 1.62;
+export const HOVER_CARD_ART_RATIO = 9 / 16;
+export const HOVER_CARD_BODY_H = 148;
+export const HOVER_CARD_MARGIN = 12;
+export const HOVER_TAIL_MAX = 128;
+export const HOVER_TAIL_ELLIPSIS = "\u2026";
+
+export const MEDIA_ROW_SEE_ALL = "See all";
+export const MEDIA_ROW_EMPTY = "Nothing here yet.";
+export const MEDIA_ROW_PRIORITY_COUNT = 5;
+export const MEDIA_ROW_SKELETON_SLOTS = 7;
+
+export const HOVER_CARD_OPEN_GLYPH = "\u27f6";
+export const HOVER_CARD_OPEN_LABEL = "Open";
