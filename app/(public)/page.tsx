@@ -2,7 +2,8 @@ import Link from "next/link";
 
 import { buttonClass } from "@/components/ui/button";
 import { Kicker } from "@/components/ui/kicker";
-import { LANDING_STEPS } from "@/lib/constants";
+import { StepCard } from "@/components/ui/step-card";
+import { PRODUCT_STEPS } from "@/lib/constants";
 
 export default function LandingPage() {
   return (
@@ -30,14 +31,8 @@ export default function LandingPage() {
       </section>
 
       <section className="px-pad grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-[clamp(14px,2vw,20px)]">
-        {LANDING_STEPS.map((step) => (
-          <div
-            key={step.title}
-            className="border-line bg-bg-2 flex flex-col gap-[9px] rounded-xl border p-5"
-          >
-            <b className="font-serif text-[22px] font-normal">{step.title}</b>
-            <p className="text-mut text-[13px]">{step.body}</p>
-          </div>
+        {PRODUCT_STEPS.map((step) => (
+          <StepCard key={step.num} {...step} />
         ))}
       </section>
 
