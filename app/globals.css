@@ -93,6 +93,7 @@
 
 :root {
   --dur: .22s;
+  --page-top: clamp(20px, 3vw, 32px);
   --rail-fade: 52px;
   --rail-caption: 48px;
   --wash: radial-gradient(120% 80% at 50% 8%, var(--color-gold-08), transparent 62%);
@@ -257,6 +258,33 @@
   &[data-at-end] { --rail-fade-end: 0px }
 }
 
+@utility marquee-wash {
+  background:
+    radial-gradient(90% 70% at 12% 30%, hsl(var(--h) 42% 20%) 0%, transparent 62%),
+    radial-gradient(70% 60% at 88% 78%, hsl(var(--h) 38% 16%) 0%, transparent 58%),
+    repeating-linear-gradient(115deg, hsl(var(--h) 18% 9%) 0 16px, hsl(var(--h) 18% 11%) 16px 32px);
+  transition: background .9s var(--ease-cue);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(11, 11, 12, .55), rgba(11, 11, 12, .2) 40%, var(--color-bg) 100%);
+  }
+}
+
+@utility marquee-grain {
+  opacity: .5;
+  background: repeating-linear-gradient(0deg, var(--color-w-02) 0 1px, transparent 1px 3px);
+}
+
+@utility marquee-tick {
+  transform: scaleX(0);
+  animation: marquee-tick var(--mq-hold) linear both;
+
+  &[data-held] { animation-play-state: paused }
+}
+
 @utility no-scrollbar {
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none }
@@ -322,6 +350,10 @@
   from { opacity: 1 }
   to { opacity: 0; transform: translateY(-14px) }
 }
+@keyframes marquee-tick {
+  from { transform: scaleX(0) }
+  to { transform: scaleX(1) }
+}
 @keyframes splash-lift {
   from { clip-path: inset(0 0 0 0) }
   to { clip-path: inset(0 0 100% 0) }
@@ -332,4 +364,18 @@
     animation: none !important;
     transition: none !important;
   }
+
+  .marquee-tick { transform: scaleX(1) }
+}
+
+[data-explore-filter="MOVIE"] [data-media-kind]:not([data-media-kind="MOVIE"]),
+[data-explore-filter="TV_SHOW"] [data-media-kind]:not([data-media-kind="TV_SHOW"]),
+[data-explore-filter="ANIME"] [data-media-kind]:not([data-media-kind="ANIME"]) {
+  display: none;
+}
+
+[data-explore-filter="MOVIE"] [data-explore-section]:not(:has([data-media-kind="MOVIE"])),
+[data-explore-filter="TV_SHOW"] [data-explore-section]:not(:has([data-media-kind="TV_SHOW"])),
+[data-explore-filter="ANIME"] [data-explore-section]:not(:has([data-media-kind="ANIME"])) {
+  display: none;
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { MediaCard } from "@/components/media/media-card";
 import { MediaRail } from "@/components/media/media-rail";
@@ -15,13 +16,16 @@ import type { MediaSummary } from "@/lib/tmdb/media";
 type MediaRowProps = {
   title: string;
   items: MediaSummary[];
+  seeAllHref: string;
   as?: "h1" | "h2" | "h3";
   note?: string;
-  seeAllHref?: string;
   seeAllLabel?: string;
   empty?: string;
   limit?: number;
   priority?: boolean;
+  ranked?: boolean;
+  sub?: (item: MediaSummary) => ReactNode;
+  action?: ReactNode;
 };
 
 export function MediaRow({
@@ -34,6 +38,9 @@ export function MediaRow({
   empty = MEDIA_ROW_EMPTY,
   limit = MEDIA_ROW_LIMIT,
   priority,
+  ranked,
+  sub,
+  action,
 }: MediaRowProps) {
   const shown = items.slice(0, limit);
   return (
@@ -43,11 +50,12 @@ export function MediaRow({
         as={as}
         note={note}
         action={
-          seeAllHref ? (
+          <span className="flex items-center gap-3.5">
+            {action}
             <Link href={seeAllHref} className="mono hover:text-gold-2">
               {seeAllLabel}
             </Link>
-          ) : null
+          </span>
         }
       />
       {shown.length ? (
@@ -57,6 +65,8 @@ export function MediaRow({
               key={mediaKey(item)}
               item={item}
               priority={priority && index < MEDIA_ROW_PRIORITY_COUNT}
+              rank={ranked ? index + 1 : undefined}
+              sub={sub?.(item)}
             />
           ))}
         </MediaRail>

@@ -7,6 +7,7 @@ export function MediaRowSkeleton({ note = true }: { note?: boolean }) {
       <div className="flex flex-wrap items-baseline gap-3">
         <Skeleton w={190} h={24} r={6} />
         {note ? <Skeleton w={130} h={13} r={4} /> : null}
+        <Skeleton w={54} h={11} r={4} className="ml-auto" />
       </div>
       <div className="no-scrollbar flex gap-3.5 overflow-hidden pb-1 [&>*]:w-[clamp(112px,15vw,150px)] [&>*]:shrink-0">
         {Array.from({ length: MEDIA_ROW_SKELETON_SLOTS }, (_, index) => (

@@ -126,11 +126,6 @@ export const TMDB_SEARCH_ATTEMPTS = 1;
 export const TMDB_FIRST_PAGE = 1;
 export const TMDB_MAX_PAGE = 500;
 
-export const MEDIA_TYPE_LABELS = {
-  MOVIE: "Movie",
-  TV_SHOW: "Show",
-} as const satisfies Record<MediaType, string>;
-
 export const MEDIA_HUE_STEPS = 360;
 export const MEDIA_HUE_SEED = 31;
 export const MEDIA_SEPARATOR = " \u00b7 ";
@@ -185,3 +180,72 @@ export const MEDIA_ACTION_PENDING = {
   label: "Not wired up yet",
   message: "Tracking lands once the user-media server actions exist.",
 } as const;
+
+export const MEDIA_RANK_PAD = 2;
+export const MEDIA_EXTENT_FEATURE = "Feature";
+export const MEDIA_SEASON_UNIT = ["season", "seasons"] as const;
+export const MEDIA_EPISODE_UNIT = ["episode", "episodes"] as const;
+export const MEDIA_SEASON_CODE = "S";
+export const MEDIA_EPISODE_CODE = "E";
+
+export const MEDIA_KIND_LABELS = {
+  MOVIE: "Movie",
+  TV_SHOW: "TV Show",
+  ANIME: "Anime",
+} as const satisfies Record<MediaType | "ANIME", string>;
+
+export const DAY_MS = 24 * 60 * 60 * 1000;
+export const WEEK_DAYS = 7;
+export const ISO_WEEK_THURSDAY = 4;
+export const RELATIVE_DAY_TODAY = "today";
+export const RELATIVE_DAY_TOMORROW = "tomorrow";
+export const RELATIVE_DAY_FUTURE = "in {n} days";
+export const RELATIVE_DAY_COUNT_TOKEN = "{n}";
+
+export const TMDB_UPCOMING_CANDIDATES = 8;
+
+export const EXPLORE_RAIL_SIZE = 12;
+export const EXPLORE_MARQUEE_SIZE = 5;
+export const EXPLORE_UPCOMING_SIZE = 4;
+
+export const EXPLORE_MARQUEE_HOLD_MS = 7000;
+export const EXPLORE_MARQUEE_SWAP_MS = 340;
+export const EXPLORE_MARQUEE_EYEBROW = "The marquee";
+export const EXPLORE_MARQUEE_WEEK = "week";
+export const EXPLORE_MARQUEE_INDEX_HEAD = "Five to consider · hover to hold";
+export const EXPLORE_MARQUEE_TRACK = "Add to library";
+export const EXPLORE_MARQUEE_OPEN = "Open title";
+
+export const EXPLORE_NOTE =
+  "Explore is for finding something to log. Nothing here is personalised — it is what is busy this week and what has held up over time.";
+
+export type ExploreFilter = "ALL" | "MOVIE" | "TV_SHOW" | "ANIME";
+
+export const EXPLORE_FILTERS = [
+  { key: "ALL", label: "Everything" },
+  { key: "TV_SHOW", label: "Shows" },
+  { key: "MOVIE", label: "Movies" },
+  { key: "ANIME", label: "Anime" },
+] as const satisfies readonly { key: ExploreFilter; label: string }[];
+
+export const EXPLORE_COUNT_LABEL = "titles";
+
+export const EXPLORE_TRENDING_TITLE = "Trending this week";
+export const EXPLORE_TRENDING_NOTE = "what everyone is watching";
+export const EXPLORE_TOP_TITLE = "Great by consensus";
+export const EXPLORE_TOP_NOTE = "highest rated, all time";
+export const EXPLORE_TOP_COUNTER = "TOP";
+export const EXPLORE_UPCOMING_TITLE = "New seasons landing";
+export const EXPLORE_UPCOMING_NOTE = "episodes out in the next fortnight";
+export const EXPLORE_UPCOMING_EMPTY = "Nothing airing in the next fortnight.";
+export const EXPLORE_UPCOMING_TRACK = "Track";
+export const EXPLORE_UPCOMING_SIZES = "36px";
+
+export const EXPLORE_MARQUEE_SKELETON_ROWS = 5;
+export const EXPLORE_UPCOMING_FORTNIGHT_DAYS = 14;
+export const MEDIA_KIND_SELECTOR = "[data-media-kind]";
+export const EXPLORE_SECTION_ERROR =
+  "Could not load this section. It will be back on the next refresh.";
+export const EXPLORE_TRENDING_HREF = "/explore/trending";
+export const EXPLORE_TOP_HREF = "/explore/top-rated";
+export const EXPLORE_UPCOMING_HREF = "/explore/upcoming";

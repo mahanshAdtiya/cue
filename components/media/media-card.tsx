@@ -1,21 +1,34 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { Poster } from "@/components/media/poster";
 import { MEDIA_CARD_SIZES } from "@/lib/constants";
-import { hueOf, mediaHref, mediaSub } from "@/lib/media/display";
+import {
+  hueOf,
+  mediaHref,
+  mediaKind,
+  mediaSub,
+  rankLabel,
+} from "@/lib/media/display";
 import { hoverAttrs } from "@/lib/media/hover";
 import type { MediaSummary } from "@/lib/tmdb/media";
 
 type MediaCardProps = {
   item: MediaSummary;
   priority?: boolean;
+  rank?: number;
+  sub?: ReactNode;
 };
 
-export function MediaCard({ item, priority }: MediaCardProps) {
+export function MediaCard({ item, priority, rank, sub }: MediaCardProps) {
   const href = mediaHref(item);
 
   return (
-    <div className="group relative flex flex-col gap-2" {...hoverAttrs(item)}>
+    <div
+      data-media-kind={mediaKind(item)}
+      className="group relative flex flex-col gap-2"
+      {...hoverAttrs(item)}
+    >
       <Link href={href} data-media-art className="block">
         <Poster
           src={item.posterUrl}
@@ -30,11 +43,18 @@ export function MediaCard({ item, priority }: MediaCardProps) {
           href={href}
           className="text-fg hover:text-gold-2 line-clamp-1 text-[13px] leading-[1.3] font-medium"
         >
+          {rank ? (
+            <span className="text-gold mr-1.5 font-serif text-[15px]">
+              {rankLabel(rank)}
+            </span>
+          ) : null}
           {item.title}
         </Link>
-        <span className="text-(color:--color-label) text-mini font-mono tracking-[.08em] uppercase">
-          {mediaSub(item)}
-        </span>
+        {sub ?? (
+          <span className="text-(color:--color-label) text-mini font-mono tracking-[.08em] uppercase">
+            {mediaSub(item)}
+          </span>
+        )}
       </div>
     </div>
   );

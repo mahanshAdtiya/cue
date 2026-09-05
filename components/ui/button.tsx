@@ -20,7 +20,7 @@ const VARIANTS = {
     sm: "min-h-10 px-4 py-2.5 text-[13px]",
   },
   pill: {
-    base: "border-line-2 text-mut hover:text-fg rounded-pill border font-medium whitespace-nowrap",
+    base: "border-line-2 text-mut hover:text-fg data-selected:bg-gold data-selected:border-gold data-selected:text-gold-ink data-selected:hover:text-gold-ink rounded-pill border font-medium whitespace-nowrap",
     md: "px-3.5 py-[9px] text-xs",
     sm: "min-h-10 px-4 py-2.5 text-[13px]",
   },
@@ -33,11 +33,19 @@ export function buttonClass(variant: Variant = "primary", size: Size = "md") {
 type ButtonProps = ComponentProps<"button"> & {
   variant?: Variant;
   size?: Size;
+  selected?: boolean;
 };
 
-export function Button({ variant, size, className, ...props }: ButtonProps) {
+export function Button({
+  variant,
+  size,
+  selected,
+  className,
+  ...props
+}: ButtonProps) {
   return (
     <button
+      data-selected={selected || undefined}
       className={`${buttonClass(variant, size)} ${className ?? ""}`}
       {...props}
     />

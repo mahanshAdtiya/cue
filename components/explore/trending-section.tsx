@@ -1,0 +1,30 @@
+import { MediaRow } from "@/components/media/media-row";
+import {
+  EXPLORE_RAIL_SIZE,
+  EXPLORE_TRENDING_HREF,
+  EXPLORE_TRENDING_NOTE,
+  EXPLORE_TRENDING_TITLE,
+} from "@/lib/constants";
+import { rankLabel } from "@/lib/media/display";
+import { getTrending } from "@/lib/tmdb/queries";
+
+export async function TrendingSection() {
+  const items = (await getTrending()).slice(0, EXPLORE_RAIL_SIZE);
+
+  return (
+    <MediaRow
+      title={EXPLORE_TRENDING_TITLE}
+      note={EXPLORE_TRENDING_NOTE}
+      seeAllHref={EXPLORE_TRENDING_HREF}
+      items={items}
+      limit={EXPLORE_RAIL_SIZE}
+      priority
+      ranked
+      action={
+        <span className="mono">
+          {rankLabel(1)} — {rankLabel(items.length)}
+        </span>
+      }
+    />
+  );
+}

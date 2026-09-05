@@ -1,6 +1,9 @@
 import "server-only";
 
 import {
+  EXPLORE_MARQUEE_SIZE,
+  EXPLORE_UPCOMING_FORTNIGHT_DAYS,
+  EXPLORE_UPCOMING_SIZE,
   TMDB_FIRST_PAGE,
   TMDB_MAX_PAGE,
   TMDB_RAIL_SIZE,
@@ -8,7 +11,9 @@ import {
   TMDB_REVALIDATE_SHORT_S,
   TMDB_SEARCH_ATTEMPTS,
   TMDB_TRENDING_WINDOW,
+  TMDB_UPCOMING_CANDIDATES,
 } from "@/lib/constants";
+import { daysUntil } from "@/lib/time";
 import { tmdbFetch } from "@/lib/tmdb/client";
 import {
   toMediaSummaries,
@@ -20,7 +25,9 @@ import {
   type TmdbMovieDetails,
   type TmdbPaged,
   type TmdbSearchResult,
+  toUpcomingEpisode,
   type TmdbTvDetails,
+  type UpcomingEpisode,
 } from "@/lib/tmdb/media";
 
 export type MediaPage = {
@@ -122,14 +129,58 @@ export async function getMovieDetails(
   return toMovieDetails(raw);
 }
 
-export async function getTvDetails(
-  id: string | number,
-): Promise<MediaDetails> {
+async function getTvRaw(id: string | number): Promise<TmdbTvDetails> {
   const externalId = tmdbId(id);
-  const raw = await tmdbFetch<TmdbTvDetails>(`/tv/${externalId}`, {
+  return tmdbFetch<TmdbTvDetails>(`/tv/${externalId}`, {
     revalidate: TMDB_REVALIDATE_LONG_S,
     tags: [`tmdb:tv:${externalId}`],
   });
+}
 
-  return toTvDetails(raw);
+export async function getTvDetails(
+  id: string | number,
+): Promise<MediaDetails> {
+  return toTvDetails(await getTvRaw(id));
+}
+
+export async function getMediaDetails(
+  item: MediaSummary,
+): Promise<MediaDetails> {
+  return item.type === "MOVIE"
+    ? getMovieDetails(item.externalId)
+    : getTvDetails(item.externalId);
+}
+
+export async function getUpcomingEpisodes(): Promise<UpcomingEpisode[]> {
+  const page = await tmdbFetch<TmdbPaged<TmdbSearchResult>>("/tv/on_the_air", {
+    revalidate: TMDB_REVALIDATE_SHORT_S,
+    tags: ["tmdb:on-the-air"],
+  });
+
+  const candidates = (page.results ?? []).slice(0, TMDB_UPCOMING_CANDIDATES);
+  const settled = await Promise.allSettled(
+    candidates.map((show) => getTvRaw(show.id)),
+  );
+
+  return settled
+    .map((result) => (result.status === "fulfilled" ? result.value : null))
+    .map((raw) => (raw ? toUpcomingEpisode(raw) : null))
+    .filter((episode): episode is UpcomingEpisode => episode !== null)
+    .filter((episode) => {
+      const days = daysUntil(episode.airDate);
+      return days !== null && days >= 0 && days <= EXPLORE_UPCOMING_FORTNIGHT_DAYS;
+    })
+    .sort((a, b) => a.airDate.localeCompare(b.airDate))
+    .slice(0, EXPLORE_UPCOMING_SIZE);
+}
+
+export async function getMarquee(): Promise<MediaDetails[]> {
+  const trending = await getTrending();
+  const settled = await Promise.allSettled(
+    trending.slice(0, EXPLORE_MARQUEE_SIZE).map(getMediaDetails),
+  );
+
+  return settled
+    .filter((result) => result.status === "fulfilled")
+    .map((result) => result.value);
 }

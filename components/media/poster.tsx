@@ -7,6 +7,7 @@ type PosterProps = {
   hue: number;
   sizes: string;
   priority?: boolean;
+  caption?: boolean;
   children?: ReactNode;
   className?: string;
 };
@@ -17,6 +18,7 @@ export function Poster({
   hue,
   sizes,
   priority,
+  caption = true,
   children,
   className,
 }: PosterProps) {
@@ -35,11 +37,11 @@ export function Poster({
           priority={priority}
           className="object-cover transition-transform duration-500 ease-cue"
         />
-      ) : (
+      ) : caption ? (
         <span className="text-w-34 text-micro absolute inset-x-2 bottom-2 font-mono leading-[1.35] tracking-[.08em] uppercase">
           {title}
         </span>
-      )}
+      ) : null}
       {children}
     </span>
   );

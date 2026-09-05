@@ -33,8 +33,10 @@ export function MediaRail({ children }: { children: ReactNode }) {
     if (!el) return;
 
     sync();
+
     const observer = new ResizeObserver(sync);
     observer.observe(el);
+    for (const child of el.children) observer.observe(child);
 
     return () => observer.disconnect();
   }, [sync]);

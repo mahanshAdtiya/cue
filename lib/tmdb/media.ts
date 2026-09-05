@@ -46,12 +46,19 @@ export type TmdbMovieDetails = TmdbShared & {
   status?: string;
 };
 
+type TmdbEpisode = {
+  season_number?: number | null;
+  episode_number?: number | null;
+  air_date?: string | null;
+};
+
 export type TmdbTvDetails = TmdbShared & {
   name: string;
   number_of_seasons?: number | null;
   number_of_episodes?: number | null;
   in_production?: boolean;
   status?: string;
+  next_episode_to_air?: TmdbEpisode | null;
 };
 
 export type MediaSummary = {
@@ -69,6 +76,13 @@ export type MediaSummary = {
   backdropCardUrl: string | null;
   isAnime: boolean;
   voteAverage: number | null;
+};
+
+export type UpcomingEpisode = {
+  media: MediaSummary;
+  seasonNumber: number;
+  episodeNumber: number;
+  airDate: string;
 };
 
 export type MediaDetails = MediaSummary & {
@@ -198,5 +212,21 @@ export function toTvDetails(raw: TmdbTvDetails): MediaDetails {
     episodeCount: raw.number_of_episodes ?? null,
     status: nonEmpty(raw.status),
     inProduction: raw.in_production ?? null,
+  };
+}
+
+export function toUpcomingEpisode(raw: TmdbTvDetails): UpcomingEpisode | null {
+  const next = raw.next_episode_to_air;
+  const airDate = nonEmpty(next?.air_date);
+
+  if (!next || !airDate) return null;
+  if (typeof next.season_number !== "number") return null;
+  if (typeof next.episode_number !== "number") return null;
+
+  return {
+    media: toSummary("TV_SHOW", raw),
+    seasonNumber: next.season_number,
+    episodeNumber: next.episode_number,
+    airDate,
   };
 }
