@@ -77,6 +77,10 @@
   --animate-chip-in: chip-in .24s var(--ease-cue) both;
   --animate-chip-out: chip-out .18s var(--ease-cue) both;
   --animate-dot: dot 1s var(--ease-cue) infinite;
+  --animate-splash-rise: splash-rise .62s var(--ease-cue) both;
+  --animate-splash-fade: splash-fade .5s var(--ease-cue) both;
+  --animate-splash-sink: splash-sink .34s var(--ease-cue) both;
+  --animate-splash-lift: splash-lift .62s var(--ease-cue) both;
 
   --breakpoint-mobile: 45rem;
   --breakpoint-tablet: 56.25rem;
@@ -95,6 +99,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  html:has([data-splash]) { overflow: hidden }
 
   body {
     min-height: 100svh;
@@ -243,6 +249,22 @@
 @keyframes dot {
   0%, 100% { opacity: 1; transform: scale(1) }
   50% { opacity: .35; transform: scale(.7) }
+}
+@keyframes splash-rise {
+  from { opacity: 0; transform: translateY(38px) }
+  to { opacity: 1; transform: none }
+}
+@keyframes splash-fade {
+  from { opacity: 0; transform: translateY(8px) }
+  to { opacity: 1; transform: none }
+}
+@keyframes splash-sink {
+  from { opacity: 1 }
+  to { opacity: 0; transform: translateY(-14px) }
+}
+@keyframes splash-lift {
+  from { clip-path: inset(0 0 0 0) }
+  to { clip-path: inset(0 0 100% 0) }
 }
 
 @media (prefers-reduced-motion: reduce) {

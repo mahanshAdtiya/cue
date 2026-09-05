@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Instrument_Serif } from "next/font/google";
 import { Suspense } from "react";
 
+import { Splash } from "@/components/layout/splash";
 import {
   TopBar,
   TopBarSession,
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </Suspense>
         </TopBar>
         {children}
+        <Splash />
       </body>
     </html>
   );
