@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { sql, type InferEnum } from "drizzle-orm";
 import {
   boolean,
   check,
@@ -21,6 +21,8 @@ export const userMediaStatus = pgEnum("user_media_status", [
   "CURRENTLY_WATCHING",
   "WATCHED",
 ]);
+
+export type UserMediaStatus = InferEnum<typeof userMediaStatus>;
 
 export const userMedia = pgTable(
   "user_media",

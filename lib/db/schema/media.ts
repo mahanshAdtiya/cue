@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { sql, type InferEnum } from "drizzle-orm";
 import {
   check,
   date,
@@ -12,6 +12,8 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const mediaType = pgEnum("media_type", ["MOVIE", "TV_SHOW"]);
+
+export type MediaType = InferEnum<typeof mediaType>;
 
 export const media = pgTable(
   "media",

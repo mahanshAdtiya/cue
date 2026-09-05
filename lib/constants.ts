@@ -1,3 +1,5 @@
+import type { UserMediaStatus } from "@/lib/db/schema/user-media";
+
 export const SESSION_TOKEN_BYTES = 32;
 export const SESSION_COOKIE_NAME = "cue_session";
 export const SESSION_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
@@ -15,6 +17,7 @@ export type NavLink = {
 
 export const NAV_LINKS = [
   { href: "/home", label: "Home" },
+  { href: "/explore", label: "Explore" },
   { href: "/library", label: "My Library", activeOn: ["/title"] },
   { href: "/people", label: "People", activeOn: ["/person"] },
 ] as const satisfies readonly NavLink[];
@@ -42,14 +45,11 @@ export const SPLASH_MINIMUM_MS = 1100;
 export const SPLASH_SETTLE_MS = 360;
 export const SPLASH_LIFT_MS = 620;
 
-export const HOME_FEED_LIMIT = 12;
-export const HOME_STUB_MODE: "empty" | "populated" = "empty";
-
 export const ENTRY_STATUS_LABELS = {
-  WANT: "Want to watch",
-  WATCHING: "Watching",
+  WANT_TO_WATCH: "Want to watch",
+  CURRENTLY_WATCHING: "Watching",
   WATCHED: "Watched",
-} as const;
+} as const satisfies Record<UserMediaStatus, string>;
 
 export type ProductStep = {
   num: string;
@@ -78,3 +78,16 @@ export const PRODUCT_STEPS = [
 export const FOOTER_TAGLINE =
   "Cue is not where you watch. Cue is where you keep track of what you watch.";
 export const FOOTER_FLOW = "Find it → Track it → Watch it → Remember it";
+
+export const TMDB_REVALIDATE_SHORT_S = 60 * 60 * 6;
+export const TMDB_REVALIDATE_LONG_S = 60 * 60 * 24 * 7;
+
+export const TMDB_MAX_ATTEMPTS = 3;
+export const TMDB_RETRY_BASE_DELAY_MS = 250;
+export const TMDB_RETRY_MAX_DELAY_MS = 2000;
+
+export const TMDB_POSTER_SIZE = "w342";
+export const TMDB_BACKDROP_SIZE = "w1280";
+export const TMDB_ANIME_GENRE_ID = 16;
+export const TMDB_ANIME_LANGUAGE = "ja";
+export const UNTITLED_MEDIA_TITLE = "Untitled";
