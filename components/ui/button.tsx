@@ -1,11 +1,37 @@
 import type { ComponentProps } from "react";
 
-type ButtonProps = ComponentProps<"button">;
+type Variant = "primary" | "pill";
+type Size = "md" | "sm";
 
-export function Button({ className, ...props }: ButtonProps) {
+const BASE =
+  "inline-flex items-center justify-center transition duration-[var(--dur)] ease-cue";
+
+const VARIANTS = {
+  primary: {
+    base: "bg-gold text-gold-ink hover:bg-gold-btn disabled:hover:bg-gold rounded-md font-semibold active:translate-y-px",
+    md: "min-h-11 px-4.5 py-[13px] text-sm",
+    sm: "min-h-10 px-4 py-2.5 text-[13px]",
+  },
+  pill: {
+    base: "border-line-2 text-mut hover:text-fg rounded-pill border font-medium whitespace-nowrap",
+    md: "px-3.5 py-[9px] text-xs",
+    sm: "min-h-10 px-4 py-2.5 text-[13px]",
+  },
+} as const;
+
+export function buttonClass(variant: Variant = "primary", size: Size = "md") {
+  return `${BASE} ${VARIANTS[variant].base} ${VARIANTS[variant][size]}`;
+}
+
+type ButtonProps = ComponentProps<"button"> & {
+  variant?: Variant;
+  size?: Size;
+};
+
+export function Button({ variant, size, className, ...props }: ButtonProps) {
   return (
     <button
-      className={`min-h-11 rounded-md bg-gold px-4.5 py-[13px] text-sm font-semibold text-gold-ink transition duration-[var(--dur)] ease-cue hover:bg-gold-btn active:translate-y-px disabled:hover:bg-gold ${className ?? ""}`}
+      className={`${buttonClass(variant, size)} ${className ?? ""}`}
       {...props}
     />
   );
