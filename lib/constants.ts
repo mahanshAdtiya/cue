@@ -14,16 +14,10 @@ export type NavLink = {
 };
 
 export const NAV_LINKS = [
-  { href: "/", label: "Home" },
+  { href: "/home", label: "Home" },
   { href: "/library", label: "My Library", activeOn: ["/title"] },
   { href: "/people", label: "People", activeOn: ["/person"] },
 ] as const satisfies readonly NavLink[];
-
-export const TOP_BAR_SKELETON = {
-  nav: { h: 13, w: { "/": 40, "/library": 72, "/people": 46 } },
-  icon: { w: 42, h: 36 },
-  avatar: 32,
-} as const;
 
 export const ROUTE_LOAD_DELAY_MS = 90;
 export const ROUTE_LOAD_MINIMUM_MS = 420;

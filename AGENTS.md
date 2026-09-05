@@ -48,21 +48,43 @@ One rule per directory:
 
 | Directory | Holds | Rule |
 |---|---|---|
-| `app/` | routes only | if a file is here, it is a URL |
+| `app/` | routes only | if a file is here, it is a URL — and it sits in a group |
 | `components/` | presentational UI | must not touch the database |
 | `actions/` | `'use server'` mutations | thin: auth → validate → call `lib/db` → revalidate |
 | `lib/db/` | all SQL | **zero Next.js imports** |
 | `lib/tmdb/` | external media API | server-only; the key never reaches the client |
 
+**Every route lives in a group, and the group is the auth posture.** There are
+two, and a route belongs to exactly one:
+
+| Group | Chrome | Session | Holds |
+|---|---|---|---|
+| `(public)` | none | never read | the landing, `/signin`, `/signup` |
+| `(app)` | top bar | required — the layout awaits it and redirects | everything you need an account to see |
+
+Membership *is* the rule: you cannot add an ungated page under `(app)`, and
+nothing in `(public)` may read the session, because that is what keeps those
+routes statically prerenderable. Name groups for the posture, never `(routes)` —
+everything under `app/` is routes.
+
 ```
 app/
-  layout.tsx            root shell (top bar + footer)
-  page.tsx              /                  Home
-  library/              /library           My Library
-  title/[id]/           /title/:id         Media page
-  people/               /people            People
-  people/[personId]/    /people/:id        Shared list
-  profile/              /profile
+  layout.tsx              html, fonts, metadata, Splash — no chrome
+  not-found.tsx           404, bare root only
+  (public)/
+    page.tsx              /                  landing
+    (auth)/
+      layout.tsx          the centred card
+      signin/             /signin
+      signup/             /signup
+  (app)/
+    layout.tsx            top bar + session gate
+    home/                 /home              Home
+    library/              /library           My Library
+    title/[id]/           /title/:id         Media page
+    people/               /people            People
+    people/[personId]/    /people/:id        Shared list
+    profile/              /profile
 ```
 
 ## Conventions

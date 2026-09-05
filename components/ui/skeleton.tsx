@@ -7,10 +7,8 @@ const SHAPES = {
 } as const;
 
 type SkeletonProps = {
-  /** number → px, string → used verbatim (`clamp()`, `min()`, …) */
   w?: number | string;
   h?: number | string;
-  /** radius override for `block`; pass a token, e.g. `var(--radius-md)` */
   r?: number | string;
   shape?: Shape;
   className?: string;
