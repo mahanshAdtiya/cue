@@ -219,13 +219,16 @@ export const EXPLORE_MARQUEE_OPEN = "Open title";
 export const EXPLORE_NOTE =
   "Explore is for finding something to log. Nothing here is personalised — it is what is busy this week and what has held up over time.";
 
-export type ExploreFilter = "ALL" | "MOVIE" | "TV_SHOW" | "ANIME";
+export type ExploreFilter = "all" | "shows" | "movies" | "anime";
+
+export const EXPLORE_FILTER_PARAM = "type";
+export const EXPLORE_FILTER_DEFAULT = "all" satisfies ExploreFilter;
 
 export const EXPLORE_FILTERS = [
-  { key: "ALL", label: "Everything" },
-  { key: "TV_SHOW", label: "Shows" },
-  { key: "MOVIE", label: "Movies" },
-  { key: "ANIME", label: "Anime" },
+  { key: "all", label: "Everything" },
+  { key: "shows", label: "Shows" },
+  { key: "movies", label: "Movies" },
+  { key: "anime", label: "Anime" },
 ] as const satisfies readonly { key: ExploreFilter; label: string }[];
 
 export const EXPLORE_COUNT_LABEL = "titles";
@@ -243,9 +246,13 @@ export const EXPLORE_UPCOMING_SIZES = "36px";
 
 export const EXPLORE_MARQUEE_SKELETON_ROWS = 5;
 export const EXPLORE_UPCOMING_FORTNIGHT_DAYS = 14;
-export const MEDIA_KIND_SELECTOR = "[data-media-kind]";
 export const EXPLORE_SECTION_ERROR =
   "Could not load this section. It will be back on the next refresh.";
 export const EXPLORE_TRENDING_HREF = "/explore/trending";
 export const EXPLORE_TOP_HREF = "/explore/top-rated";
 export const EXPLORE_UPCOMING_HREF = "/explore/upcoming";
+export const TMDB_MIN_VOTES = 2000;
+export const TMDB_SORT_RATING = "vote_average.desc";
+export const TMDB_SORT_POPULARITY = "popularity.desc";
+export const ISO_DATE_LENGTH = 10;
+export const EXPLORE_SCOPE_SELECTOR = "[data-explore-scope]";

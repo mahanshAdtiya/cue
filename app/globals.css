@@ -367,15 +367,3 @@
 
   .marquee-tick { transform: scaleX(1) }
 }
-
-[data-explore-filter="MOVIE"] [data-media-kind]:not([data-media-kind="MOVIE"]),
-[data-explore-filter="TV_SHOW"] [data-media-kind]:not([data-media-kind="TV_SHOW"]),
-[data-explore-filter="ANIME"] [data-media-kind]:not([data-media-kind="ANIME"]) {
-  display: none;
-}
-
-[data-explore-filter="MOVIE"] [data-explore-section]:not(:has([data-media-kind="MOVIE"])),
-[data-explore-filter="TV_SHOW"] [data-explore-section]:not(:has([data-media-kind="TV_SHOW"])),
-[data-explore-filter="ANIME"] [data-explore-section]:not(:has([data-media-kind="ANIME"])) {
-  display: none;
-}

@@ -1,5 +1,6 @@
 import {
   DAY_MS,
+  ISO_DATE_LENGTH,
   ISO_WEEK_THURSDAY,
   RELATIVE_DAY_COUNT_TOKEN,
   RELATIVE_DAY_FUTURE,
@@ -32,4 +33,8 @@ export function relativeDayLabel(days: number): string {
   if (days <= 0) return RELATIVE_DAY_TODAY;
   if (days === 1) return RELATIVE_DAY_TOMORROW;
   return RELATIVE_DAY_FUTURE.replace(RELATIVE_DAY_COUNT_TOKEN, String(days));
+}
+
+export function isoDate(date: Date): string {
+  return new Date(startOfUtcDay(date)).toISOString().slice(0, ISO_DATE_LENGTH);
 }

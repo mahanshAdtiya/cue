@@ -1,10 +1,11 @@
 import { MediaRow } from "@/components/media/media-row";
 import {
   EXPLORE_RAIL_SIZE,
-  EXPLORE_TOP_COUNTER,
   EXPLORE_TOP_HREF,
   EXPLORE_TOP_NOTE,
+  EXPLORE_TOP_COUNTER,
   EXPLORE_TOP_TITLE,
+  type ExploreFilter,
 } from "@/lib/constants";
 import { mediaRating } from "@/lib/media/display";
 import type { MediaSummary } from "@/lib/tmdb/media";
@@ -21,8 +22,8 @@ function score(item: MediaSummary) {
   );
 }
 
-export async function TopRatedSection() {
-  const items = (await getTopRated()).slice(0, EXPLORE_RAIL_SIZE);
+export async function TopRatedSection({ filter }: { filter: ExploreFilter }) {
+  const items = (await getTopRated(filter)).slice(0, EXPLORE_RAIL_SIZE);
 
   return (
     <MediaRow

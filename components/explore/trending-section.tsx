@@ -4,12 +4,13 @@ import {
   EXPLORE_TRENDING_HREF,
   EXPLORE_TRENDING_NOTE,
   EXPLORE_TRENDING_TITLE,
+  type ExploreFilter,
 } from "@/lib/constants";
 import { rankLabel } from "@/lib/media/display";
 import { getTrending } from "@/lib/tmdb/queries";
 
-export async function TrendingSection() {
-  const items = (await getTrending()).slice(0, EXPLORE_RAIL_SIZE);
+export async function TrendingSection({ filter }: { filter: ExploreFilter }) {
+  const items = (await getTrending(filter)).slice(0, EXPLORE_RAIL_SIZE);
 
   return (
     <MediaRow

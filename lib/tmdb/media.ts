@@ -27,6 +27,7 @@ type TmdbShared = {
   genres?: TmdbGenre[];
   original_language?: string;
   vote_average?: number;
+  popularity?: number;
 };
 
 export type TmdbSearchResult = TmdbShared & {
@@ -76,6 +77,7 @@ export type MediaSummary = {
   backdropCardUrl: string | null;
   isAnime: boolean;
   voteAverage: number | null;
+  popularity: number | null;
 };
 
 export type UpcomingEpisode = {
@@ -164,6 +166,7 @@ function toSummary(type: MediaType, raw: TmdbShared): MediaSummary {
     backdropCardUrl: backdropCardUrl(backdropPath),
     isAnime: isAnime(raw),
     voteAverage: raw.vote_average ?? null,
+    popularity: raw.popularity ?? null,
   };
 }
 

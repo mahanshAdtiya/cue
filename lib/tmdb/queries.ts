@@ -10,10 +10,18 @@ import {
   TMDB_REVALIDATE_LONG_S,
   TMDB_REVALIDATE_SHORT_S,
   TMDB_SEARCH_ATTEMPTS,
+  DAY_MS,
+  TMDB_ANIME_GENRE_ID,
+  TMDB_ANIME_LANGUAGE,
+  TMDB_MIN_VOTES,
+  TMDB_SORT_POPULARITY,
+  TMDB_SORT_RATING,
   TMDB_TRENDING_WINDOW,
   TMDB_UPCOMING_CANDIDATES,
+  type ExploreFilter,
 } from "@/lib/constants";
-import { daysUntil } from "@/lib/time";
+import { daysUntil, isoDate } from "@/lib/time";
+import type { MediaType } from "@/lib/db/schema/media";
 import { tmdbFetch } from "@/lib/tmdb/client";
 import {
   toMediaSummaries,
@@ -57,7 +65,65 @@ function clampPage(page: number): number {
   return Math.min(Math.max(page, TMDB_FIRST_PAGE), TMDB_MAX_PAGE);
 }
 
-export async function getTrending(): Promise<MediaSummary[]> {
+type DiscoverParams = Record<string, string | number | boolean>;
+
+function animeParams(filter: ExploreFilter): DiscoverParams {
+  return filter === "anime"
+    ? {
+        with_genres: TMDB_ANIME_GENRE_ID,
+        with_original_language: TMDB_ANIME_LANGUAGE,
+      }
+    : {};
+}
+
+function discover(
+  type: MediaType,
+  params: DiscoverParams,
+  tag: string,
+): Promise<MediaSummary[]> {
+  const path = type === "MOVIE" ? "/discover/movie" : "/discover/tv";
+
+  return tmdbFetch<TmdbPaged<TmdbSearchResult>>(path, {
+    params,
+    revalidate: TMDB_REVALIDATE_SHORT_S,
+    tags: [tag],
+  }).then((page) => toTypedMediaSummaries(page, type));
+}
+
+function byRating(a: MediaSummary, b: MediaSummary): number {
+  return (b.voteAverage ?? 0) - (a.voteAverage ?? 0);
+}
+
+function byPopularity(a: MediaSummary, b: MediaSummary): number {
+  return (b.popularity ?? 0) - (a.popularity ?? 0);
+}
+
+export async function getTrending(
+  filter: ExploreFilter = "all",
+): Promise<MediaSummary[]> {
+  if (filter === "anime") {
+    const params = { sort_by: TMDB_SORT_POPULARITY, ...animeParams(filter) };
+    const [movies, shows] = await Promise.all([
+      discover("MOVIE", params, "tmdb:trending"),
+      discover("TV_SHOW", params, "tmdb:trending"),
+    ]);
+
+    return [...movies, ...shows].sort(byPopularity).slice(0, TMDB_RAIL_SIZE);
+  }
+
+  if (filter === "movies" || filter === "shows") {
+    const type = filter === "movies" ? "movie" : "tv";
+    const page = await tmdbFetch<TmdbPaged<TmdbSearchResult>>(
+      `/trending/${type}/${TMDB_TRENDING_WINDOW}`,
+      { revalidate: TMDB_REVALIDATE_SHORT_S, tags: ["tmdb:trending"] },
+    );
+
+    return toTypedMediaSummaries(
+      page,
+      filter === "movies" ? "MOVIE" : "TV_SHOW",
+    ).slice(0, TMDB_RAIL_SIZE);
+  }
+
   const page = await tmdbFetch<TmdbPaged<TmdbSearchResult>>(
     `/trending/all/${TMDB_TRENDING_WINDOW}`,
     { revalidate: TMDB_REVALIDATE_SHORT_S, tags: ["tmdb:trending"] },
@@ -75,24 +141,27 @@ export async function getNowPlaying(): Promise<MediaSummary[]> {
   return toTypedMediaSummaries(page, "MOVIE").slice(0, TMDB_RAIL_SIZE);
 }
 
-export async function getTopRated(): Promise<MediaSummary[]> {
-  const [movies, shows] = await Promise.all([
-    tmdbFetch<TmdbPaged<TmdbSearchResult>>("/movie/top_rated", {
-      revalidate: TMDB_REVALIDATE_SHORT_S,
-      tags: ["tmdb:top-rated"],
-    }),
-    tmdbFetch<TmdbPaged<TmdbSearchResult>>("/tv/top_rated", {
-      revalidate: TMDB_REVALIDATE_SHORT_S,
-      tags: ["tmdb:top-rated"],
-    }),
-  ]);
+export async function getTopRated(
+  filter: ExploreFilter = "all",
+): Promise<MediaSummary[]> {
+  const params = {
+    sort_by: TMDB_SORT_RATING,
+    "vote_count.gte": TMDB_MIN_VOTES,
+    ...animeParams(filter),
+  };
 
-  return [
-    ...toTypedMediaSummaries(movies, "MOVIE"),
-    ...toTypedMediaSummaries(shows, "TV_SHOW"),
-  ]
-    .sort((a, b) => (b.voteAverage ?? 0) - (a.voteAverage ?? 0))
-    .slice(0, TMDB_RAIL_SIZE);
+  const wanted: MediaType[] =
+    filter === "movies"
+      ? ["MOVIE"]
+      : filter === "shows"
+        ? ["TV_SHOW"]
+        : ["MOVIE", "TV_SHOW"];
+
+  const lists = await Promise.all(
+    wanted.map((type) => discover(type, params, "tmdb:top-rated")),
+  );
+
+  return lists.flat().sort(byRating).slice(0, TMDB_RAIL_SIZE);
 }
 
 export async function searchMedia(
@@ -151,13 +220,45 @@ export async function getMediaDetails(
     : getTvDetails(item.externalId);
 }
 
-export async function getUpcomingEpisodes(): Promise<UpcomingEpisode[]> {
+async function upcomingCandidates(
+  filter: ExploreFilter,
+): Promise<TmdbSearchResult[]> {
+  if (filter === "anime") {
+    const today = new Date();
+    const page = await tmdbFetch<TmdbPaged<TmdbSearchResult>>("/discover/tv", {
+      params: {
+        sort_by: TMDB_SORT_POPULARITY,
+        "air_date.gte": isoDate(today),
+        "air_date.lte": isoDate(
+          new Date(today.getTime() + EXPLORE_UPCOMING_FORTNIGHT_DAYS * DAY_MS),
+        ),
+        ...animeParams(filter),
+      },
+      revalidate: TMDB_REVALIDATE_SHORT_S,
+      tags: ["tmdb:on-the-air"],
+    });
+
+    return page.results ?? [];
+  }
+
   const page = await tmdbFetch<TmdbPaged<TmdbSearchResult>>("/tv/on_the_air", {
     revalidate: TMDB_REVALIDATE_SHORT_S,
     tags: ["tmdb:on-the-air"],
   });
 
-  const candidates = (page.results ?? []).slice(0, TMDB_UPCOMING_CANDIDATES);
+  return page.results ?? [];
+}
+
+export async function getUpcomingEpisodes(
+  filter: ExploreFilter = "all",
+): Promise<UpcomingEpisode[]> {
+  if (filter === "movies") return [];
+
+  const candidates = (await upcomingCandidates(filter)).slice(
+    0,
+    TMDB_UPCOMING_CANDIDATES,
+  );
+
   const settled = await Promise.allSettled(
     candidates.map((show) => getTvRaw(show.id)),
   );

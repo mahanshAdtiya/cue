@@ -3,13 +3,7 @@ import type { ReactNode } from "react";
 
 import { Poster } from "@/components/media/poster";
 import { MEDIA_CARD_SIZES } from "@/lib/constants";
-import {
-  hueOf,
-  mediaHref,
-  mediaKind,
-  mediaSub,
-  rankLabel,
-} from "@/lib/media/display";
+import { hueOf, mediaHref, mediaSub, rankLabel } from "@/lib/media/display";
 import { hoverAttrs } from "@/lib/media/hover";
 import type { MediaSummary } from "@/lib/tmdb/media";
 
@@ -24,11 +18,7 @@ export function MediaCard({ item, priority, rank, sub }: MediaCardProps) {
   const href = mediaHref(item);
 
   return (
-    <div
-      data-media-kind={mediaKind(item)}
-      className="group relative flex flex-col gap-2"
-      {...hoverAttrs(item)}
-    >
+    <div className="group relative flex flex-col gap-2" {...hoverAttrs(item)}>
       <Link href={href} data-media-art className="block">
         <Poster
           src={item.posterUrl}

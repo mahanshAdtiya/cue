@@ -18,7 +18,6 @@ import {
   hueOf,
   mediaHref,
   mediaKey,
-  mediaKind,
 } from "@/lib/media/display";
 import type { UpcomingEpisode } from "@/lib/tmdb/media";
 import { daysUntil, relativeDayLabel } from "@/lib/time";
@@ -51,7 +50,6 @@ export function UpcomingList({ episodes }: { episodes: UpcomingEpisode[] }) {
             return (
               <div
                 key={mediaKey(episode.media)}
-                data-media-kind={mediaKind(episode.media)}
                 className="border-w-06 flex items-center gap-3.5 border-b py-3"
               >
                 <Link href={href} className="w-9 shrink-0">
