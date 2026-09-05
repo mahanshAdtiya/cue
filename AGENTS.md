@@ -139,8 +139,8 @@ is TypeScript, React and Tailwind under the directories in the table above.
 - `claude/docs/tmdb-api.md` — **read this before writing or changing anything
   that touches TMDB.** Auth, the full error-code table, rate limiting, caching,
   pagination limits, which endpoints carry `media_type`, `append_to_response`,
-  image sizes and URL building, languages, regions, changes, and the attribution
-  we owe them. Claims are marked **[live]** (verified against the real API) or
+  trailers and their measured coverage, image sizes and URL building, languages,
+  regions, changes, and the attribution we owe them. Claims are marked **[live]** (verified against the real API) or
   **[docs]**; **[live]** wins.
 - `claude/prototype/website/` — the original design prototype, unpacked.
   **Read this, not `website.html`, which is the bundle.**

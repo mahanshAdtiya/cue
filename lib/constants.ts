@@ -91,3 +91,9 @@ export const TMDB_BACKDROP_SIZE = "w1280";
 export const TMDB_ANIME_GENRE_ID = 16;
 export const TMDB_ANIME_LANGUAGE = "ja";
 export const UNTITLED_MEDIA_TITLE = "Untitled";
+
+export const TMDB_RAIL_SIZE = 14;
+export const TMDB_TRENDING_WINDOW = "week";
+export const TMDB_SEARCH_ATTEMPTS = 1;
+export const TMDB_FIRST_PAGE = 1;
+export const TMDB_MAX_PAGE = 500;

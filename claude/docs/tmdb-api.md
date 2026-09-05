@@ -275,14 +275,103 @@ extra top-level keys on the single response.
 
 - **Maximum 20 appended objects** — exceeding it is status code 27.
 - Appended sub-requests still honour their own query params, which is why
-  `include_image_language` matters when appending `images` (§10).
+  `include_image_language` matters when appending `images` (§11).
 
 This is the main lever for keeping Cue under the rate limit: the media page
 needs details plus videos plus credits, and that is one request, not three.
 
 ---
 
-## 10. Images
+## 10. Videos (trailers)
+
+**TMDB never hosts video.** It stores *metadata pointing at* videos hosted
+elsewhere — in practice always YouTube. You build the playable URL yourself.
+
+`/movie/{id}/videos`, `/tv/{id}/videos`, or `append_to_response=videos` on a
+details call. **[live]** result shape:
+
+```json
+{ "name": "Trailer 4", "key": "LY19rHKAaAg", "site": "YouTube",
+  "type": "Trailer", "official": true, "size": 1080,
+  "published_at": "2014-10-29T21:00:02.000Z",
+  "iso_639_1": "en", "iso_3166_1": "US", "id": "..." }
+```
+
+- `key` is the YouTube video id. Embed `https://www.youtube.com/embed/{key}`
+  (or `youtube-nocookie.com`), thumbnail `https://img.youtube.com/vi/{key}/hqdefault.jpg`.
+- **[live]** observed `type` values: `Trailer`, `Teaser`, `Clip`, `Featurette`,
+  `Behind the Scenes`. Observed `site` values: `YouTube` only.
+- `official` distinguishes studio uploads from fan re-uploads.
+- Volume is high — Interstellar returns **45** video records. Always filter.
+
+### Do not confuse this with `movie.video`
+
+Every movie object carries a **boolean** field named `video` (**[live]**: `false`
+for Interstellar). It flags a direct-to-video release. It has nothing to do with
+whether a trailer exists. Never branch hero UI on it.
+
+### Coverage — trailers are NOT guaranteed
+
+**[live]** measured 2026-09-06, 20 titles per slice, counting a YouTube video
+with `type: "Trailer"`:
+
+| Slice | any trailer | official + English | **no videos at all** |
+|---|---|---|---|
+| `/trending/all/week` | 100% | 95% | 0% |
+| `/movie/top_rated` | 100% | 95% | 0% |
+| `/tv/top_rated` | 85% | 85% | 10% |
+| `/tv/top_rated?page=15` | 85% | 65% | 5% |
+| obscure movies (discover, popularity asc) | 30% | 5% | **60%** |
+| obscure TV (discover, popularity asc) | 10% | 0% | **90%** |
+
+Read that table before designing anything that assumes a trailer.
+
+- Popular content is ~95% covered, **not 100%**.
+- **Breaking Bad returns zero videos** — fame is not a predictor. Do not assume a
+  famous title has a trailer.
+- TV is consistently worse than film.
+- Long-tail content mostly has nothing. A library or search view **will** hit
+  0% coverage rows.
+
+### The cost problem for lists
+
+`append_to_response` works only on **detail** endpoints. List endpoints
+(`/trending`, `/movie/top_rated`, `/search/multi`) never carry videos. So there
+is no way to know which items in a rail have trailers without **one detail
+request per item** — 20 items is 20 requests.
+
+Practical consequences:
+- Fetch videos for the **one** title you are about to feature, not for a list.
+- Choosing "the first trending title that has a trailer" costs one request per
+  candidate tested. Cap the candidates (2–3) and accept the fallback.
+- Every such call must be cached with a long revalidate window; trailers do not
+  change.
+
+### Selection rule for Cue
+
+Filter in this order, and stop at the first hit:
+
+1. `site === "YouTube"` — everything else is unplayable for us.
+2. `type === "Trailer"`, then `"Teaser"` as second choice.
+3. `official === true`.
+4. `iso_639_1 === "en"`.
+
+Without step 4 you will surface a foreign-language behind-the-scenes clip as the
+hero. Without step 3 you get fan re-uploads that go dead.
+
+**Always design the no-trailer path first.** The backdrop image (§11) is the
+fallback, and given the table above it is not an edge case — it is the normal
+state for anything outside the popular head.
+
+### Third-party caveats
+
+A YouTube embed is a third-party iframe: heavy, cookie-setting, and best behind
+a click-to-load poster rather than eagerly mounted. YouTube's terms apply to the
+embed independently of TMDB's attribution obligations (§19).
+
+---
+
+## 11. Images
 
 Images are **not** returned as URLs. TMDB gives you a `file_path` like
 `/vUHlpA5c1NXkds59reY3HMb4Abs.jpg`, and you build:
@@ -328,7 +417,7 @@ frozen into data.
 
 ---
 
-## 11. Languages
+## 12. Languages
 
 **[docs]** Format is ISO 639-1, optionally with an ISO 3166-1 country:
 `en-US`, `pt-BR`. Default is `en-US`.
@@ -344,7 +433,7 @@ param on every request, not sprinkled through call sites.
 
 ---
 
-## 12. Regions
+## 13. Regions
 
 **[docs]** `region` is an ISO 3166-1 code (`US`, `DE`). It filters *release date*
 information, and pairs with `language` — `language=de-DE&region=DE` gives German
@@ -359,7 +448,7 @@ Not used by Cue today. Relevant the moment "in theatres near you" appears.
 
 ---
 
-## 13. Popularity and trending
+## 14. Popularity and trending
 
 **[docs]** Two different scores, often confused:
 
@@ -375,7 +464,7 @@ sorts a catalogue; trending answers "what is happening now".
 
 ---
 
-## 14. Finding by external ID
+## 15. Finding by external ID
 
 **[docs]** `/find/{external_id}?external_source={source}` maps an ID from
 elsewhere onto TMDB.
@@ -390,7 +479,7 @@ Relevant to Cue only for an import feature (bring your list over from IMDb).
 
 ---
 
-## 15. Tracking changes
+## 16. Tracking changes
 
 **[docs]** `/movie/changes`, `/tv/changes`, `/person/changes` list IDs modified
 in the last 24 hours.
@@ -407,7 +496,7 @@ window; it becomes relevant once TMDB data is persisted long-term in Postgres.
 
 ---
 
-## 16. Daily ID exports
+## 17. Daily ID exports
 
 **[docs]** Bulk lists of valid IDs plus a few attributes (adult, video,
 popularity) — not full records.
@@ -422,7 +511,7 @@ popularity) — not full records.
 
 ---
 
-## 17. Response format
+## 18. Response format
 
 **[docs]** JSON only. A `callback` query param wraps responses as JSONP — Cue has
 no use for it, since we never call TMDB from the browser. Send
@@ -430,7 +519,7 @@ no use for it, since we never call TMDB from the browser. Send
 
 ---
 
-## 18. Attribution and licensing — obligations, not suggestions
+## 19. Attribution and licensing — obligations, not suggestions
 
 **[docs]** These apply to Cue as soon as it is public:
 
@@ -449,7 +538,7 @@ Cue's footer needs the notice and logo before any public deploy.
 
 ---
 
-## 19. How this maps onto our code
+## 20. How this maps onto our code
 
 | Concern | Where it lives |
 |---|---|

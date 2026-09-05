@@ -154,6 +154,13 @@ export function toMediaSummaries(page: TmdbPaged<TmdbSearchResult>): MediaSummar
     .filter((item): item is MediaSummary => item !== null);
 }
 
+export function toTypedMediaSummaries(
+  page: TmdbPaged<TmdbSearchResult>,
+  type: MediaType,
+): MediaSummary[] {
+  return (page.results ?? []).map((result) => toSummary(type, result));
+}
+
 function genreNames(raw: TmdbShared): string[] {
   return (raw.genres ?? [])
     .map((genre) => nonEmpty(genre.name))
