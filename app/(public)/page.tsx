@@ -3,7 +3,7 @@ import Link from "next/link";
 import { buttonClass } from "@/components/ui/button";
 import { Kicker } from "@/components/ui/kicker";
 import { StepCard } from "@/components/ui/step-card";
-import { PRODUCT_STEPS } from "@/lib/constants";
+import { FOOTER_FLOW, PRODUCT_STEPS } from "@/lib/constants";
 
 export default function LandingPage() {
   return (
@@ -38,9 +38,7 @@ export default function LandingPage() {
 
       <section className="px-pad">
         <div className="border-line bg-bg-2 flex flex-wrap items-center justify-between gap-5 rounded-xl border p-[clamp(24px,4vw,40px)]">
-          <h2 className="max-w-[26ch]">
-            Find it → Track it → Watch it → Remember it
-          </h2>
+          <h2 className="max-w-[26ch]">{FOOTER_FLOW}</h2>
           <Link href="/signup" className={buttonClass()}>
             Start tracking
           </Link>

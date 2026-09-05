@@ -1,4 +1,5 @@
 import type { MediaType } from "@/lib/db/schema/media";
+import type { IconName } from "@/lib/icons";
 import type { UserMediaStatus } from "@/lib/db/schema/user-media";
 
 export const SESSION_TOKEN_BYTES = 32;
@@ -38,10 +39,10 @@ export const NAV_LINKS = [
 export type ToastKind = "success" | "error" | "info";
 
 export const TOAST_KINDS = {
-  success: { icon: "✓", label: "Done" },
-  error: { icon: "✕", label: "Problem" },
-  info: { icon: "ℹ", label: "Heads up" },
-} as const satisfies Record<ToastKind, { icon: string; label: string }>;
+  success: { icon: "check", label: "Done" },
+  error: { icon: "close", label: "Problem" },
+  info: { icon: "info", label: "Heads up" },
+} as const satisfies Record<ToastKind, { icon: IconName; label: string }>;
 
 export const TOAST_MAX = 4;
 export const TOAST_DURATION_MS = 4200;
@@ -114,6 +115,7 @@ export const TMDB_RETRY_MAX_DELAY_MS = 2000;
 
 export const TMDB_POSTER_SIZE = "w342";
 export const TMDB_BACKDROP_SIZE = "w1280";
+export const TMDB_BACKDROP_CARD_SIZE = "w780";
 export const TMDB_ANIME_GENRE_ID = 16;
 export const TMDB_ANIME_LANGUAGE = "ja";
 export const UNTITLED_MEDIA_TITLE = "Untitled";
@@ -136,15 +138,18 @@ export const MEDIA_RATING_GLYPH = "\u2605";
 export const MEDIA_RATING_DECIMALS = 1;
 
 export const MEDIA_CARD_SIZES = "(max-width: 45rem) 33vw, 150px";
-export const HOVER_CARD_SIZES = "(max-width: 45rem) 60vw, 260px";
+export const HOVER_CARD_SIZES = "(max-width: 45rem) 90vw, 460px";
 
 export const HOVER_POINTER_QUERY = "(hover: hover) and (pointer: fine)";
-export const HOVER_OPEN_DELAY_MS = 380;
+export const HOVER_OPEN_DELAY_MS = 150;
 export const HOVER_CLOSE_DELAY_MS = 240;
-export const HOVER_TRANSITION_MS = 300;
-export const HOVER_CARD_SCALE = 1.62;
+export const HOVER_TRANSITION_MS = 460;
+export const HOVER_FADE_MS = 260;
+export const HOVER_FADE_DELAY_MS = 90;
+export const HOVER_CARD_SCALE = 2.6;
+export const HOVER_CARD_MIN_WIDTH = 420;
 export const HOVER_CARD_ART_RATIO = 9 / 16;
-export const HOVER_CARD_BODY_H = 148;
+export const HOVER_CARD_BODY_H = 196;
 export const HOVER_CARD_MARGIN = 12;
 export const HOVER_TAIL_MAX = 128;
 export const HOVER_TAIL_ELLIPSIS = "\u2026";
@@ -152,7 +157,31 @@ export const HOVER_TAIL_ELLIPSIS = "\u2026";
 export const MEDIA_ROW_SEE_ALL = "See all";
 export const MEDIA_ROW_EMPTY = "Nothing here yet.";
 export const MEDIA_ROW_PRIORITY_COUNT = 5;
+export const MEDIA_ROW_LIMIT = 10;
 export const MEDIA_ROW_SKELETON_SLOTS = 7;
 
-export const HOVER_CARD_OPEN_GLYPH = "\u27f6";
+export const RAIL_PAGE_RATIO = 0.9;
+export const RAIL_EDGE_EPSILON = 2;
+export const RAIL_PREV_LABEL = "Scroll left";
+export const RAIL_NEXT_LABEL = "Scroll right";
+
 export const HOVER_CARD_OPEN_LABEL = "Open";
+export const HOVER_STATE_UNTRACKED = "Not tracked yet";
+
+export type MediaAction = {
+  key: "want" | "watched" | "favorite";
+  icon: IconName;
+  label: string;
+};
+
+export const MEDIA_ACTIONS = [
+  { key: "want", icon: "plus", label: "Want to watch" },
+  { key: "watched", icon: "check", label: "Mark as watched" },
+  { key: "favorite", icon: "star", label: "Add to favorites" },
+] as const satisfies readonly MediaAction[];
+
+export const MEDIA_ACTION_PENDING = {
+  kind: "info",
+  label: "Not wired up yet",
+  message: "Tracking lands once the user-media server actions exist.",
+} as const;

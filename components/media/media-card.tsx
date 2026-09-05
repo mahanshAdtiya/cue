@@ -28,7 +28,7 @@ export function MediaCard({ item, priority }: MediaCardProps) {
       <div className="ease-cue flex flex-col gap-1.5 transition-opacity duration-[var(--dur)] group-data-[hovered]:opacity-0">
         <Link
           href={href}
-          className="text-fg hover:text-gold-2 text-[13px] leading-[1.3] font-medium"
+          className="text-fg hover:text-gold-2 line-clamp-1 text-[13px] leading-[1.3] font-medium"
         >
           {item.title}
         </Link>

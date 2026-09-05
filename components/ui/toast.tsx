@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { Icon } from "@/components/ui/icon";
 import { TOAST_EXIT_MS, TOAST_KINDS } from "@/lib/constants";
 import { dismiss, type ToastData } from "@/lib/toast/store";
 
@@ -51,9 +52,9 @@ export function Toast({ toast }: { toast: ToastData }) {
     >
       <span
         aria-hidden
-        className="mt-px grid size-[22px] place-items-center text-[15px] leading-none text-[var(--accent)]"
+        className="mt-px grid size-[22px] place-items-center text-[var(--accent)]"
       >
-        {icon}
+        <Icon name={icon} size={17} />
       </span>
 
       <div className="flex min-w-0 flex-col gap-[7px]">
@@ -91,9 +92,9 @@ export function Toast({ toast }: { toast: ToastData }) {
         type="button"
         aria-label="Dismiss"
         onClick={() => setLeaving(true)}
-        className="text-mut hover:text-fg hover:bg-w-06 ease-cue -mt-1 -mr-1 grid size-8 place-items-center rounded-sm text-[17px] leading-none transition duration-[var(--dur)]"
+        className="text-mut hover:text-fg hover:bg-w-06 ease-cue -mt-1 -mr-1 grid size-8 place-items-center rounded-sm transition duration-[var(--dur)]"
       >
-        ×
+        <Icon name="close" size={15} />
       </button>
 
       {toast.duration ? (

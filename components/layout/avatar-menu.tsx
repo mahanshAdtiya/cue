@@ -6,6 +6,7 @@ import { useEffect, useRef, useTransition } from "react";
 import { logout } from "@/actions/auth";
 import { RouteLoad } from "@/components/layout/route-load";
 import { Avatar } from "@/components/ui/avatar";
+import { Icon } from "@/components/ui/icon";
 import { SIGNED_OUT_TOAST } from "@/lib/constants";
 import { useDisclosure } from "@/lib/hooks/use-disclosure";
 import { toast } from "@/lib/toast/store";
@@ -13,7 +14,7 @@ import { toast } from "@/lib/toast/store";
 const ROW =
   "border-line hover:bg-w-04 hover:text-gold-2 text-fg group flex min-h-[62px] w-full items-center border-b px-[18px] font-mono text-sm tracking-[.08em] uppercase last:border-b-0";
 const GLYPH =
-  "text-mut-2 group-hover:text-gold-2 ml-auto text-[13px] tracking-[.1em] transition duration-[var(--dur)] ease-cue group-hover:translate-x-1";
+  "text-mut-2 group-hover:text-gold-2 ml-auto transition duration-[var(--dur)] ease-cue group-hover:translate-x-1";
 
 export function AvatarMenu({ name, email }: { name: string; email: string }) {
   const { open, close, toggle } = useDisclosure();
@@ -67,7 +68,7 @@ export function AvatarMenu({ name, email }: { name: string; email: string }) {
 
           <Link href="/profile" className={ROW}>
             View profile
-            <span className={GLYPH}>⟶</span>
+            <Icon name="arrow-right" size={16} className={GLYPH} />
             <RouteLoad label="Profile" />
           </Link>
 
@@ -78,7 +79,7 @@ export function AvatarMenu({ name, email }: { name: string; email: string }) {
             className={ROW}
           >
             {signingOut ? "Logging out…" : "Log out"}
-            <span className={GLYPH}>⟶</span>
+            <Icon name="arrow-right" size={16} className={GLYPH} />
           </button>
         </div>
       )}

@@ -2,6 +2,7 @@ import {
   HOVER_CARD_ART_RATIO,
   HOVER_CARD_BODY_H,
   HOVER_CARD_MARGIN,
+  HOVER_CARD_MIN_WIDTH,
   HOVER_CARD_SCALE,
   HOVER_TAIL_ELLIPSIS,
   HOVER_TAIL_MAX,
@@ -64,7 +65,7 @@ export function hoverAttrs(item: MediaSummary): Record<string, string> {
     [ATTR.meta]: mediaMeta(item),
     [ATTR.tail]: tail(item.description),
     [ATTR.poster]: item.posterUrl ?? "",
-    [ATTR.backdrop]: item.backdropUrl ?? "",
+    [ATTR.backdrop]: item.backdropCardUrl ?? "",
     [ATTR.hue]: String(hueOf(item.externalId)),
   };
 }
@@ -98,7 +99,10 @@ export function hoverGeometry(
   viewportHeight: number,
 ): HoverGeometry {
   const maxWidth = viewportWidth - HOVER_CARD_MARGIN * 2;
-  const width = Math.min(art.width * HOVER_CARD_SCALE, maxWidth);
+  const width = Math.min(
+    Math.max(art.width * HOVER_CARD_SCALE, HOVER_CARD_MIN_WIDTH),
+    maxWidth,
+  );
   const openArtHeight = Math.round(width * HOVER_CARD_ART_RATIO);
   const height = openArtHeight + HOVER_CARD_BODY_H;
 

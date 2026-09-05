@@ -3,6 +3,7 @@ import "server-only";
 import {
   TMDB_ANIME_GENRE_ID,
   TMDB_ANIME_LANGUAGE,
+  TMDB_BACKDROP_CARD_SIZE,
   TMDB_BACKDROP_SIZE,
   TMDB_POSTER_SIZE,
   UNTITLED_MEDIA_TITLE,
@@ -63,7 +64,9 @@ export type MediaSummary = {
   year: number | null;
   posterPath: string | null;
   posterUrl: string | null;
+  backdropPath: string | null;
   backdropUrl: string | null;
+  backdropCardUrl: string | null;
   isAnime: boolean;
   voteAverage: number | null;
 };
@@ -92,6 +95,10 @@ export function posterUrl(path: string | null | undefined): string | null {
 
 export function backdropUrl(path: string | null | undefined): string | null {
   return imageUrl(path, TMDB_BACKDROP_SIZE);
+}
+
+export function backdropCardUrl(path: string | null | undefined): string | null {
+  return imageUrl(path, TMDB_BACKDROP_CARD_SIZE);
 }
 
 function nonEmpty(value: string | null | undefined): string | null {
@@ -126,6 +133,7 @@ export function toMediaType(value: string | undefined): MediaType | null {
 function toSummary(type: MediaType, raw: TmdbShared): MediaSummary {
   const releaseDate = nonEmpty(raw.release_date ?? raw.first_air_date);
   const posterPath = nonEmpty(raw.poster_path);
+  const backdropPath = nonEmpty(raw.backdrop_path);
 
   return {
     externalId: String(raw.id),
@@ -137,7 +145,9 @@ function toSummary(type: MediaType, raw: TmdbShared): MediaSummary {
     year: yearOf(releaseDate),
     posterPath,
     posterUrl: posterUrl(posterPath),
-    backdropUrl: backdropUrl(raw.backdrop_path),
+    backdropPath,
+    backdropUrl: backdropUrl(backdropPath),
+    backdropCardUrl: backdropCardUrl(backdropPath),
     isAnime: isAnime(raw),
     voteAverage: raw.vote_average ?? null,
   };

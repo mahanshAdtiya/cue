@@ -1,14 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import type { CSSProperties } from "react";
 
+import { MediaActions } from "@/components/media/media-actions";
 import {
   HOVER_CARD_BODY_H,
-  HOVER_CARD_OPEN_GLYPH,
-  HOVER_CARD_OPEN_LABEL,
   HOVER_CARD_SIZES,
+  HOVER_FADE_DELAY_MS,
+  HOVER_FADE_MS,
+  HOVER_STATE_UNTRACKED,
   HOVER_TRANSITION_MS,
 } from "@/lib/constants";
 import type { HoverGeometry, HoverMedia } from "@/lib/media/hover";
@@ -24,6 +25,10 @@ export function HoverCard({ media, geometry, open }: HoverCardProps) {
   const artHeight = open ? geometry.openArtHeight : geometry.closedArtHeight;
   const showBackdrop = open && Boolean(media.backdrop);
   const duration = { transitionDuration: `${HOVER_TRANSITION_MS}ms` };
+  const fade = {
+    transitionDuration: `${HOVER_FADE_MS}ms`,
+    transitionDelay: open ? `${HOVER_FADE_DELAY_MS}ms` : "0ms",
+  };
 
   return (
     <div
@@ -49,8 +54,9 @@ export function HoverCard({ media, geometry, open }: HoverCardProps) {
             src={media.poster}
             alt=""
             fill
+            unoptimized
             sizes={HOVER_CARD_SIZES}
-            style={duration}
+            style={fade}
             className={`ease-cue object-cover transition-opacity ${showBackdrop ? "opacity-0" : "opacity-100"}`}
           />
         ) : null}
@@ -59,14 +65,15 @@ export function HoverCard({ media, geometry, open }: HoverCardProps) {
             src={media.backdrop}
             alt=""
             fill
+            unoptimized
             sizes={HOVER_CARD_SIZES}
-            style={duration}
+            style={fade}
             className={`ease-cue object-cover transition-opacity ${showBackdrop ? "opacity-100" : "opacity-0"}`}
           />
         ) : null}
         <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_38%,var(--color-veil-2)_100%)]" />
         <b
-          style={duration}
+          style={fade}
           className={`ease-cue absolute inset-x-4 bottom-3 line-clamp-2 font-serif text-2xl leading-[1.05] font-normal transition-opacity ${open ? "opacity-100" : "opacity-0"}`}
         >
           {media.title}
@@ -74,22 +81,17 @@ export function HoverCard({ media, geometry, open }: HoverCardProps) {
       </div>
 
       <div
-        style={{ width: geometry.open.width, height: HOVER_CARD_BODY_H, ...duration }}
+        style={{ width: geometry.open.width, height: HOVER_CARD_BODY_H, ...fade }}
         className={`ease-cue flex shrink-0 flex-col gap-2.5 px-4 pt-3.5 pb-4 transition-opacity ${open ? "opacity-100" : "opacity-0"}`}
       >
+        <MediaActions href={media.href} />
         <span className="mono">{media.meta}</span>
+        <span className="text-gold-2 text-xs">{HOVER_STATE_UNTRACKED}</span>
         {media.tail ? (
           <span className="text-mut line-clamp-2 text-xs leading-[1.5]">
             {media.tail}
           </span>
         ) : null}
-        <Link
-          href={media.href}
-          aria-label={HOVER_CARD_OPEN_LABEL}
-          className="border-line-2 text-mut hover:border-gold hover:text-gold-2 hover:bg-gold-12 ease-cue mt-auto grid h-9 w-9 shrink-0 place-items-center rounded-full border text-[13px] transition duration-[var(--dur)]"
-        >
-          {HOVER_CARD_OPEN_GLYPH}
-        </Link>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { MediaRail } from "@/components/media/media-rail";
 import { SectionHeader } from "@/components/ui/section-header";
 import {
   MEDIA_ROW_EMPTY,
+  MEDIA_ROW_LIMIT,
   MEDIA_ROW_PRIORITY_COUNT,
   MEDIA_ROW_SEE_ALL,
 } from "@/lib/constants";
@@ -19,6 +20,7 @@ type MediaRowProps = {
   seeAllHref?: string;
   seeAllLabel?: string;
   empty?: string;
+  limit?: number;
   priority?: boolean;
 };
 
@@ -30,8 +32,10 @@ export function MediaRow({
   seeAllHref,
   seeAllLabel = MEDIA_ROW_SEE_ALL,
   empty = MEDIA_ROW_EMPTY,
+  limit = MEDIA_ROW_LIMIT,
   priority,
 }: MediaRowProps) {
+  const shown = items.slice(0, limit);
   return (
     <section className="flex flex-col gap-3.5">
       <SectionHeader
@@ -46,9 +50,9 @@ export function MediaRow({
           ) : null
         }
       />
-      {items.length ? (
+      {shown.length ? (
         <MediaRail>
-          {items.map((item, index) => (
+          {shown.map((item, index) => (
             <MediaCard
               key={mediaKey(item)}
               item={item}

@@ -30,6 +30,7 @@ export function Poster({
           src={src}
           alt=""
           fill
+          unoptimized
           sizes={sizes}
           priority={priority}
           className="object-cover transition-transform duration-500 ease-cue"

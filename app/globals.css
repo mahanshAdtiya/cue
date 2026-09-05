@@ -94,6 +94,7 @@
 :root {
   --dur: .22s;
   --rail-fade: 52px;
+  --rail-caption: 48px;
   --wash: radial-gradient(120% 80% at 50% 8%, var(--color-gold-08), transparent 62%);
   --wash-splash: radial-gradient(120% 80% at 15% 88%, var(--color-gold-08), transparent 62%);
 }
@@ -237,7 +238,7 @@
 }
 
 @utility rail-fade {
-  --rail-fade-start: 0px;
+  --rail-fade-start: var(--rail-fade);
   --rail-fade-end: var(--rail-fade);
 
   mask-image: linear-gradient(
@@ -248,12 +249,12 @@
     transparent 100%
   );
 
-  @supports (animation-timeline: scroll()) {
-    animation-name: rail-edges;
-    animation-timing-function: linear;
-    animation-fill-mode: both;
-    animation-timeline: scroll(self inline);
-  }
+  transition:
+    --rail-fade-start var(--dur) var(--ease-cue),
+    --rail-fade-end var(--dur) var(--ease-cue);
+
+  &[data-at-start] { --rail-fade-start: 0px }
+  &[data-at-end] { --rail-fade-end: 0px }
 }
 
 @utility no-scrollbar {
@@ -276,12 +277,6 @@
 @keyframes slidedown {
   from { opacity: 0; transform: translateY(-10px) }
   to { opacity: 1; transform: none }
-}
-@keyframes rail-edges {
-  0% { --rail-fade-start: 0px; --rail-fade-end: var(--rail-fade) }
-  6% { --rail-fade-start: var(--rail-fade) }
-  94% { --rail-fade-end: var(--rail-fade) }
-  100% { --rail-fade-start: var(--rail-fade); --rail-fade-end: 0px }
 }
 @keyframes sweep {
   from { transform: translateX(-100%) }

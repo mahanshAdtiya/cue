@@ -34,6 +34,7 @@ export function HoverLayer() {
   const [phase, setPhase] = useState<Phase>("enter");
 
   const tile = useRef<HTMLElement | null>(null);
+  const preloaded = useRef(new Set<string>());
   const openTimer = useRef<number | null>(null);
   const closeTimer = useRef<number | null>(null);
   const pathname = usePathname();
@@ -48,6 +49,12 @@ export function HoverLayer() {
     if (closeTimer.current === null) return;
     window.clearTimeout(closeTimer.current);
     closeTimer.current = null;
+  }, []);
+
+  const preload = useCallback((src: string | null) => {
+    if (!src || preloaded.current.has(src)) return;
+    preloaded.current.add(src);
+    new window.Image().src = src;
   }, []);
 
   const markTile = useCallback((next: HTMLElement | null) => {
@@ -68,15 +75,16 @@ export function HoverLayer() {
     (target: HTMLElement) => {
       cancelOpen();
       cancelClose();
+
+      const media = readHoverMedia(target);
+      const art = target.querySelector(MEDIA_ART_SELECTOR);
+      if (!media || !(art instanceof HTMLElement)) return;
+
+      preload(media.backdrop);
       if (tile.current && tile.current !== target) dismiss();
 
       openTimer.current = window.setTimeout(() => {
         openTimer.current = null;
-
-        const media = readHoverMedia(target);
-        const art = target.querySelector(MEDIA_ART_SELECTOR);
-        if (!media || !(art instanceof HTMLElement)) return;
-
         markTile(target);
         setActive({
           media,
@@ -89,7 +97,7 @@ export function HoverLayer() {
         setPhase("enter");
       }, HOVER_OPEN_DELAY_MS);
     },
-    [cancelOpen, cancelClose, dismiss, markTile],
+    [cancelOpen, cancelClose, dismiss, markTile, preload],
   );
 
   const scheduleClose = useCallback(() => {

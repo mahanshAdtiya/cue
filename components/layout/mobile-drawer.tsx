@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createPortal } from "react-dom";
 
 import { RouteLoad } from "@/components/layout/route-load";
+import { Icon } from "@/components/ui/icon";
 import { IconButton } from "@/components/ui/icon-button";
 import { NAV_LINKS } from "@/lib/constants";
 import { useDisclosure } from "@/lib/hooks/use-disclosure";
@@ -20,7 +21,7 @@ export function MobileDrawer() {
         className="tablet:hidden"
         onClick={toggle}
       >
-        ☰
+        <Icon name="menu" />
       </IconButton>
 
       {open &&
@@ -51,9 +52,11 @@ export function MobileDrawer() {
                     {String(index + 1).padStart(2, "0")}
                   </i>
                   {link.label}
-                  <span className="text-mut-2 group-hover:text-gold-2 ml-auto text-[13px] tracking-[.1em] transition duration-[var(--dur)] ease-cue group-hover:translate-x-1">
-                    ⟶
-                  </span>
+                  <Icon
+                    name="arrow-right"
+                    size={16}
+                    className="text-mut-2 group-hover:text-gold-2 ml-auto transition duration-[var(--dur)] ease-cue group-hover:translate-x-1"
+                  />
                   <RouteLoad label={link.label} />
                 </Link>
               ))}
