@@ -142,6 +142,22 @@
   }
   input::placeholder, textarea::placeholder { color: var(--color-faint) }
 
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    box-shadow: 0 0 0 1000px var(--color-bg-3) inset;
+    -webkit-text-fill-color: var(--color-fg);
+    caret-color: var(--color-fg);
+  }
+
+  input:autofill,
+  input:autofill:hover,
+  input:autofill:focus {
+    box-shadow: 0 0 0 1000px var(--color-bg-3) inset;
+    -webkit-text-fill-color: var(--color-fg);
+    caret-color: var(--color-fg);
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-gold-55);
     outline-offset: 2px;
