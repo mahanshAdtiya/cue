@@ -93,7 +93,6 @@
 
 :root {
   --dur: .22s;
-  --page-top: clamp(20px, 3vw, 32px);
   --rail-fade: 52px;
   --rail-caption: 48px;
   --wash: radial-gradient(120% 80% at 50% 8%, var(--color-gold-08), transparent 62%);

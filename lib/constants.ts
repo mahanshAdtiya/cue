@@ -109,9 +109,11 @@ export const FOOTER_FLOW = "Find it → Track it → Watch it → Remember it";
 export const TMDB_REVALIDATE_SHORT_S = 60 * 60 * 6;
 export const TMDB_REVALIDATE_LONG_S = 60 * 60 * 24 * 7;
 
-export const TMDB_MAX_ATTEMPTS = 3;
+export const TMDB_MAX_ATTEMPTS = 4;
 export const TMDB_RETRY_BASE_DELAY_MS = 250;
 export const TMDB_RETRY_MAX_DELAY_MS = 2000;
+export const TMDB_RETRY_JITTER = 0.5;
+export const TMDB_CONCURRENCY = 3;
 
 export const TMDB_POSTER_SIZE = "w342";
 export const TMDB_BACKDROP_SIZE = "w1280";

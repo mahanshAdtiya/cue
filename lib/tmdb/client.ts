@@ -1,8 +1,10 @@
 import "server-only";
 
 import {
+  TMDB_CONCURRENCY,
   TMDB_MAX_ATTEMPTS,
   TMDB_RETRY_BASE_DELAY_MS,
+  TMDB_RETRY_JITTER,
   TMDB_RETRY_MAX_DELAY_MS,
 } from "@/lib/constants";
 
@@ -62,7 +64,47 @@ function backoffMs(attempt: number, retryAfter: string | null): number {
     TMDB_RETRY_BASE_DELAY_MS * 2 ** (attempt - 1),
     TMDB_RETRY_MAX_DELAY_MS,
   );
-  return Math.random() * ceiling;
+  return ceiling * (TMDB_RETRY_JITTER + Math.random() * (1 - TMDB_RETRY_JITTER));
+}
+
+let active = 0;
+const waiting: (() => void)[] = [];
+
+function acquire(): Promise<void> {
+  if (active < TMDB_CONCURRENCY) {
+    active += 1;
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    waiting.push(() => {
+      active += 1;
+      resolve();
+    });
+  });
+}
+
+function release(): void {
+  active -= 1;
+  waiting.shift()?.();
+}
+
+async function send(
+  url: URL,
+  token: string,
+  timeoutMs: number,
+  next: { revalidate?: number; tags?: string[] },
+): Promise<Response> {
+  await acquire();
+  try {
+    return await fetch(url, {
+      headers: { Authorization: `Bearer ${token}`, accept: "application/json" },
+      signal: AbortSignal.timeout(timeoutMs),
+      next,
+    });
+  } finally {
+    release();
+  }
 }
 
 async function failureMessage(response: Response): Promise<string> {
@@ -96,13 +138,9 @@ export async function tmdbFetch<T>(
 
     let response: Response;
     try {
-      response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          accept: "application/json",
-        },
-        signal: AbortSignal.timeout(timeoutMs),
-        next: { revalidate: options.revalidate, tags: options.tags },
+      response = await send(url, token, timeoutMs, {
+        revalidate: options.revalidate,
+        tags: options.tags,
       });
     } catch (cause) {
       const timedOut = cause instanceof Error && cause.name === "TimeoutError";
