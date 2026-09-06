@@ -19,7 +19,6 @@ export async function TrendingSection({ filter }: { filter: ExploreFilter }) {
       seeAllHref={EXPLORE_TRENDING_HREF}
       items={items}
       limit={EXPLORE_RAIL_SIZE}
-      priority
       ranked
       action={
         <span className="mono">
