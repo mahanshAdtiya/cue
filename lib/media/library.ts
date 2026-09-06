@@ -11,6 +11,7 @@ export type LibraryMedia = TrackedMedia & {
   currentSeason: number | null;
   currentEpisode: number | null;
   rating: number | null;
+  episodeCount: number | null;
 };
 
 export function toLibraryMedia(row: LibraryRow): LibraryMedia {
@@ -27,13 +28,14 @@ export function toLibraryMedia(row: LibraryRow): LibraryMedia {
     backdropPath: row.backdropPath,
     backdropUrl: backdropUrl(row.backdropPath),
     backdropCardUrl: backdropCardUrl(row.backdropPath),
-    isAnime: false,
     voteAverage: row.voteAverage,
     popularity: null,
     status: row.status,
     isFavorite: row.isFavorite,
+    episodeCount: row.episodeCount,
     currentSeason: row.currentSeason,
     currentEpisode: row.currentEpisode,
     rating: row.rating,
   };
 }
+

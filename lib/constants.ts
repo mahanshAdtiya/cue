@@ -127,6 +127,10 @@ export const TMDB_CONCURRENCY = 3;
 export const TMDB_POSTER_SIZE = "w342";
 export const TMDB_BACKDROP_SIZE = "w1280";
 export const TMDB_BACKDROP_CARD_SIZE = "w780";
+export const TMDB_PROFILE_SIZE = "w185";
+export const TMDB_CERTIFICATION_REGION = "US";
+export const TMDB_MOVIE_APPEND = "credits,release_dates";
+export const TMDB_TV_APPEND = "credits,content_ratings";
 export const TMDB_ANIME_GENRE_ID = 16;
 export const TMDB_ANIME_LANGUAGE = "ja";
 export const UNTITLED_MEDIA_TITLE = "Untitled";
@@ -136,6 +140,7 @@ export const TMDB_TRENDING_WINDOW = "week";
 export const TMDB_SEARCH_ATTEMPTS = 1;
 export const TMDB_FIRST_PAGE = 1;
 export const TMDB_MAX_PAGE = 500;
+export const TMDB_NOT_FOUND_STATUS = 404;
 
 export const MEDIA_HUE_STEPS = 360;
 export const MEDIA_HUE_SEED = 31;
@@ -171,8 +176,7 @@ export const RAIL_EDGE_EPSILON = 2;
 export const RAIL_PREV_LABEL = "Scroll left";
 export const RAIL_NEXT_LABEL = "Scroll right";
 
-export const HOVER_CARD_OPEN_LABEL = "Open";
-export const HOVER_STATE_UNTRACKED = "Not tracked yet";
+export const MEDIA_UNTRACKED_LABEL = "Not tracked yet";
 
 export type StatusAction = {
   status: UserMediaStatus;
@@ -266,8 +270,17 @@ export const MEDIA_EPISODE_CODE = "E";
 export const MEDIA_KIND_LABELS = {
   MOVIE: "Movie",
   TV_SHOW: "TV Show",
-  ANIME: "Anime",
-} as const satisfies Record<MediaType | "ANIME", string>;
+} as const satisfies Record<MediaType, string>;
+
+export const MEDIA_TYPE_SEGMENTS = {
+  MOVIE: "movie",
+  TV_SHOW: "tv",
+} as const satisfies Record<MediaType, string>;
+
+export const MEDIA_GENRE_SEPARATOR = ", ";
+export const MEDIA_RUNTIME_MINUTES_PER_HOUR = 60;
+export const MEDIA_RUNTIME_HOUR_UNIT = "h";
+export const MEDIA_RUNTIME_MINUTE_UNIT = "m";
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 export const WEEK_DAYS = 7;
@@ -330,20 +343,29 @@ export const TMDB_MIN_VOTES = 2000;
 export const TMDB_SORT_RATING = "vote_average.desc";
 export const TMDB_SORT_POPULARITY = "popularity.desc";
 export const ISO_DATE_LENGTH = 10;
+export const DATE_LOCALE = "en-GB";
+export const DATE_SHORT_OPTIONS = {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+} as const satisfies Intl.DateTimeFormatOptions;
+export const DATE_LONG_OPTIONS = {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+} as const satisfies Intl.DateTimeFormatOptions;
 export const EXPLORE_SCOPE_SELECTOR = "[data-explore-scope]";
 
 export const HOME_RAIL_SIZE = 12;
 export const HOME_RECENT_SIZE = 4;
 
-export const HOME_COUNT_TOKEN = "{n}";
-export const HOME_WATCHED_COUNT_TOKEN = "{m}";
 
 export const HOME_LIBRARY_HREF = "/library";
 export const HOME_EXPLORE_HREF = "/explore";
 
 export const HOME_HERO_KICKER = "Pick up where you left off";
-export const HOME_HERO_OPEN = "Open title";
-export const HOME_HERO_SIZES = "100vw";
 
 export const HOME_IDLE_KICKER = "Nothing in progress";
 export const HOME_IDLE_TITLE = "Start something tonight";
@@ -368,3 +390,107 @@ export const HOME_TITLE_UNIT = ["title", "titles"] as const;
 
 export const MEDIA_RATING_EMPTY_GLYPH = "☆";
 export const MEDIA_RATING_STARS = 5;
+
+export const TITLE_POSTER_SIZES = "(max-width: 45rem) 60vw, 286px";
+export const TITLE_BACKDROP_SIZES = "100vw";
+export const TITLE_TRACKING_LABEL = "Your tracking";
+export const TITLE_FACT_STATUS = "Status";
+export const TITLE_FACT_RELEASED = "Released";
+export const TITLE_FACT_FIRST_AIRED = "First aired";
+export const TITLE_FACT_RATING = "TMDB rating";
+export const TITLE_FACT_RUNTIME = "Runtime";
+export const TITLE_FACT_SEASONS = "Seasons";
+
+export const TITLE_CAST_LIMIT = 12;
+export const TITLE_CREDIT_NAME_SEPARATOR = ", ";
+
+export const MOVIE_CREDIT_ROLES = [
+  { label: "Directed by", jobs: ["Director"] },
+  { label: "Written by", jobs: ["Screenplay", "Writer", "Story"] },
+  { label: "Cinematography", jobs: ["Director of Photography"] },
+  { label: "Score", jobs: ["Original Music Composer"] },
+] as const;
+
+export const TITLE_CREDIT_STUDIO = "Studio";
+export const TITLE_CREDIT_CREATED_BY = "Created by";
+export const TITLE_CREDIT_NETWORK = "Network";
+export const TITLE_CREDIT_ROLE_LIMIT = 3;
+
+export const COUNT_TOKEN = "{n}";
+export const TOTAL_TOKEN = "{m}";
+export const MEDIA_RATING_MIN = 1;
+export const FIRST_SEASON_NUMBER = 1;
+
+export const RATING_SAVED_TOAST = {
+  kind: "success",
+  label: "Rated",
+  message: "{n} out of 5. Change it any time.",
+} as const;
+
+export const RATING_CLEARED_TOAST = {
+  kind: "info",
+  label: "Rating cleared",
+  message: "It stays in your library.",
+} as const;
+
+export const WATCH_ADDED_TOAST = {
+  kind: "success",
+  label: "Rewatch logged",
+  message: "Added to your history.",
+} as const;
+
+export const WATCH_REMOVED_TOAST = {
+  kind: "info",
+  label: "Rewatch removed",
+  message: "Your history is back one.",
+} as const;
+
+export const TITLE_FACTLINE_SEPARATOR = "\u00b7";
+export const TITLE_SYNOPSIS_EMPTY = "No synopsis yet.";
+export const TITLE_SEEN_LABEL = "Seen \u00d7{n}";
+export const TITLE_WATCH_ADD_LABEL = "One more watch";
+export const TITLE_WATCH_REMOVE_LABEL = "One fewer watch";
+export const TITLE_RATE_GROUP_LABEL = "Rate";
+export const TITLE_STAR_LABEL = "{n} out of 5";
+export const TITLE_WATCHED_ACTION = "Mark watched";
+export const TITLE_WATCHED_DONE = "Watched";
+export const TITLE_PROGRESS_NOT_STARTED = "Not started";
+export const TITLE_PROGRESS_FINISHED = "Finished \u00b7 caught up";
+export const TITLE_PROGRESS_UP_NEXT = "Up next {n}";
+export const TITLE_PROGRESS_COUNT = "{n} / {m}";
+export const TITLE_CAST_TITLE = "Cast";
+export const TITLE_CAST_NOTE = "who is in it";
+export const TITLE_CREDITS_TITLE = "Credits";
+export const TITLE_CREDITS_NOTE = "the names behind it";
+export const TITLE_CAST_SIZES = "(max-width: 45rem) 33vw, 164px";
+export const TITLE_KICKER_MOVIE_EXTENT = "feature";
+
+export const TITLE_FACT_LANGUAGE = "Language";
+export const TITLE_FACT_COUNTRY = "Country";
+export const TITLE_FACT_NEXT_EPISODE = "Next episode";
+export const TITLE_VOTES_UNIT = ["vote", "votes"] as const;
+export const TITLE_FACT_SLOTS = 5;
+export const TITLE_CAST_SLOTS = 6;
+
+export const TITLE_EPISODES_TITLE = "Episodes";
+export const TITLE_EPISODES_NOTE = "every episode in this season";
+export const TITLE_EPISODES_EMPTY = "No episodes listed for this season yet.";
+export const TITLE_EPISODES_COUNTER = "{n} OF {m} WATCHED";
+export const TITLE_EPISODES_UNAIRED = "TBA";
+export const TITLE_SEASON_PARAM = "season";
+export const TITLE_SEASON_LABEL = "Season {n}";
+export const TITLE_EPISODE_SKELETON_ROWS = 8;
+export const TITLE_EPISODE_MARK_LABEL = "Mark watched";
+export const TITLE_EPISODE_UNMARK_LABEL = "Unmark";
+
+export const EPISODE_WATCHED_TOAST = {
+  kind: "success",
+  label: "Episode marked watched",
+  message: "Your progress moved with it.",
+} as const;
+
+export const EPISODE_UNWATCHED_TOAST = {
+  kind: "info",
+  label: "Episode unmarked",
+  message: "Progress rolled back.",
+} as const;

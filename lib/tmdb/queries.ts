@@ -6,6 +6,7 @@ import {
   EXPLORE_UPCOMING_SIZE,
   TMDB_FIRST_PAGE,
   TMDB_MAX_PAGE,
+  TMDB_MOVIE_APPEND,
   TMDB_RAIL_SIZE,
   TMDB_REVALIDATE_LONG_S,
   TMDB_REVALIDATE_SHORT_S,
@@ -17,6 +18,7 @@ import {
   TMDB_SORT_POPULARITY,
   TMDB_SORT_RATING,
   TMDB_TRENDING_WINDOW,
+  TMDB_TV_APPEND,
   TMDB_UPCOMING_CANDIDATES,
   type ExploreFilter,
 } from "@/lib/constants";
@@ -33,7 +35,10 @@ import {
   type TmdbMovieDetails,
   type TmdbPaged,
   type TmdbSearchResult,
+  toEpisodes,
   toUpcomingEpisode,
+  type EpisodeSummary,
+  type TmdbSeasonDetails,
   type TmdbTvDetails,
   type UpcomingEpisode,
 } from "@/lib/tmdb/media";
@@ -191,6 +196,7 @@ export async function getMovieDetails(
 ): Promise<MediaDetails> {
   const externalId = tmdbId(id);
   const raw = await tmdbFetch<TmdbMovieDetails>(`/movie/${externalId}`, {
+    params: { append_to_response: TMDB_MOVIE_APPEND },
     revalidate: TMDB_REVALIDATE_LONG_S,
     tags: [`tmdb:movie:${externalId}`],
   });
@@ -201,6 +207,7 @@ export async function getMovieDetails(
 async function getTvRaw(id: string | number): Promise<TmdbTvDetails> {
   const externalId = tmdbId(id);
   return tmdbFetch<TmdbTvDetails>(`/tv/${externalId}`, {
+    params: { append_to_response: TMDB_TV_APPEND },
     revalidate: TMDB_REVALIDATE_LONG_S,
     tags: [`tmdb:tv:${externalId}`],
   });
@@ -284,4 +291,21 @@ export async function getMarquee(): Promise<MediaDetails[]> {
   return settled
     .filter((result) => result.status === "fulfilled")
     .map((result) => result.value);
+}
+
+export async function getSeasonEpisodes(
+  id: string | number,
+  seasonNumber: number,
+): Promise<EpisodeSummary[]> {
+  const externalId = tmdbId(id);
+
+  const raw = await tmdbFetch<TmdbSeasonDetails>(
+    `/tv/${externalId}/season/${seasonNumber}`,
+    {
+      revalidate: TMDB_REVALIDATE_SHORT_S,
+      tags: [`tmdb:tv:${externalId}:season:${seasonNumber}`],
+    },
+  );
+
+  return toEpisodes(raw, seasonNumber);
 }

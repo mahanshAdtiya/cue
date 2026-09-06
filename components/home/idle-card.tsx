@@ -3,7 +3,7 @@ import Link from "next/link";
 import { buttonClass } from "@/components/ui/button";
 import { Kicker } from "@/components/ui/kicker";
 import {
-  HOME_COUNT_TOKEN,
+  COUNT_TOKEN,
   HOME_EXPLORE_HREF,
   HOME_IDLE_BODY,
   HOME_IDLE_BROWSE,
@@ -12,7 +12,7 @@ import {
   HOME_IDLE_TITLE,
   HOME_LIBRARY_HREF,
   HOME_TITLE_UNIT,
-  HOME_WATCHED_COUNT_TOKEN,
+  TOTAL_TOKEN,
 } from "@/lib/constants";
 import { counted } from "@/lib/media/display";
 import { fill } from "@/lib/text";
@@ -24,8 +24,8 @@ type IdleCardProps = {
 
 export function IdleCard({ wantCount, watchedCount }: IdleCardProps) {
   const body = fill(HOME_IDLE_BODY, {
-    [HOME_COUNT_TOKEN]: counted(wantCount, HOME_TITLE_UNIT),
-    [HOME_WATCHED_COUNT_TOKEN]: counted(watchedCount, HOME_TITLE_UNIT),
+    [COUNT_TOKEN]: counted(wantCount, HOME_TITLE_UNIT),
+    [TOTAL_TOKEN]: counted(watchedCount, HOME_TITLE_UNIT),
   });
 
   return (

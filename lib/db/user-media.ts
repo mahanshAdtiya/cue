@@ -1,11 +1,15 @@
-import { and, count, desc, eq, isNull, max, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNull, max, or, sql } from "drizzle-orm";
 
 import { db } from "./client";
 import { media, type MediaType } from "./schema/media";
 import { userMedia, type UserMediaStatus } from "./schema/user-media";
+import { userMediaEpisode } from "./schema/user-media-episode";
 import { userMediaHistory } from "./schema/user-media-history";
 
 const FAVORITED_UNTRACKED_STATUS: UserMediaStatus = "WATCHED";
+const RATED_UNTRACKED_STATUS: UserMediaStatus = "WATCHED";
+const FINISHED_STATUS: UserMediaStatus = "WATCHED";
+const STARTED_STATUS: UserMediaStatus = "CURRENTLY_WATCHING";
 
 const ZERO_COUNTS: UserMediaCounts = {
   WANT_TO_WATCH: 0,
@@ -27,6 +31,7 @@ export type MediaInput = MediaKey & {
   description: string | null;
   releaseDate: string | null;
   voteAverage: number | null;
+  episodeCount: number | null;
 };
 
 export type UserMediaEntry = MediaKey & {
@@ -60,6 +65,7 @@ const libraryColumns = {
   description: media.description,
   releaseDate: media.releaseDate,
   voteAverage: media.voteAverage,
+  episodeCount: media.episodeCount,
   status: userMedia.status,
   currentSeason: userMedia.currentSeason,
   currentEpisode: userMedia.currentEpisode,
@@ -87,6 +93,7 @@ async function upsertMedia(tx: Transaction, input: MediaInput) {
       description: input.description,
       releaseDate: input.releaseDate,
       voteAverage: input.voteAverage,
+      episodeCount: input.episodeCount,
     })
     .onConflictDoUpdate({
       target: [media.mediaExternalId, media.type],
@@ -97,6 +104,7 @@ async function upsertMedia(tx: Transaction, input: MediaInput) {
         description: sql`coalesce(excluded.description, ${media.description})`,
         releaseDate: sql`coalesce(excluded.release_date, ${media.releaseDate})`,
         voteAverage: sql`coalesce(excluded.vote_average, ${media.voteAverage})`,
+        episodeCount: sql`coalesce(excluded.episode_count, ${media.episodeCount})`,
         updatedAt: new Date(),
       },
     })
@@ -158,6 +166,7 @@ export async function findMediaByExternalId(
       description: media.description,
       releaseDate: media.releaseDate,
       voteAverage: media.voteAverage,
+      episodeCount: media.episodeCount,
     })
     .from(media)
     .where(
@@ -317,4 +326,317 @@ export async function countUserMediaByStatus(
   }
 
   return counts;
+}
+
+async function findMediaId(
+  tx: Transaction,
+  key: MediaKey,
+): Promise<string | null> {
+  const [row] = await tx
+    .select({ id: media.id })
+    .from(media)
+    .where(
+      and(eq(media.mediaExternalId, key.externalId), eq(media.type, key.type)),
+    )
+    .limit(1);
+
+  return row?.id ?? null;
+}
+
+async function countWatches(
+  tx: Transaction,
+  userId: string,
+  mediaId: string,
+): Promise<number> {
+  const [row] = await tx
+    .select({ total: count() })
+    .from(userMediaHistory)
+    .where(
+      and(
+        eq(userMediaHistory.userId, userId),
+        eq(userMediaHistory.mediaId, mediaId),
+      ),
+    );
+
+  return row?.total ?? 0;
+}
+
+export async function countUserMediaWatches(
+  userId: string,
+  key: MediaKey,
+): Promise<number> {
+  const [row] = await db
+    .select({ total: count() })
+    .from(userMediaHistory)
+    .innerJoin(media, eq(media.id, userMediaHistory.mediaId))
+    .where(
+      and(
+        eq(userMediaHistory.userId, userId),
+        eq(media.mediaExternalId, key.externalId),
+        eq(media.type, key.type),
+      ),
+    );
+
+  return row?.total ?? 0;
+}
+
+export async function setUserMediaRating(input: {
+  userId: string;
+  media: MediaInput;
+  rating: number | null;
+}) {
+  return db.transaction(async (tx) => {
+    const mediaId = await upsertMedia(tx, input.media);
+
+    if (input.rating !== null) {
+      const [created] = await tx
+        .insert(userMedia)
+        .values({
+          userId: input.userId,
+          mediaId,
+          type: input.media.type,
+          status: RATED_UNTRACKED_STATUS,
+          rating: input.rating,
+        })
+        .onConflictDoNothing({
+          target: [userMedia.userId, userMedia.mediaId],
+        })
+        .returning();
+
+      if (created) {
+        await recordFinish(tx, input.userId, mediaId);
+
+        return { entry: created, created: true };
+      }
+    }
+
+    const [entry] = await tx
+      .update(userMedia)
+      .set({ rating: input.rating, updatedAt: new Date() })
+      .where(ownRow(input.userId, mediaId))
+      .returning();
+
+    return { entry: entry ?? null, created: false };
+  });
+}
+
+export async function addUserMediaWatch(input: {
+  userId: string;
+  media: MediaInput;
+}) {
+  return db.transaction(async (tx) => {
+    const mediaId = await upsertMedia(tx, input.media);
+
+    await tx
+      .insert(userMedia)
+      .values({
+        userId: input.userId,
+        mediaId,
+        type: input.media.type,
+        status: FINISHED_STATUS,
+      })
+      .onConflictDoUpdate({
+        target: [userMedia.userId, userMedia.mediaId],
+        set: { status: FINISHED_STATUS, updatedAt: new Date() },
+      });
+
+    await recordFinish(tx, input.userId, mediaId);
+
+    return { watches: await countWatches(tx, input.userId, mediaId) };
+  });
+}
+
+export async function removeUserMediaWatch(input: {
+  userId: string;
+  key: MediaKey;
+}) {
+  return db.transaction(async (tx) => {
+    const mediaId = await findMediaId(tx, input.key);
+
+    if (!mediaId) return { watches: 0 };
+
+    const [latest] = await tx
+      .select({ id: userMediaHistory.id })
+      .from(userMediaHistory)
+      .where(
+        and(
+          eq(userMediaHistory.userId, input.userId),
+          eq(userMediaHistory.mediaId, mediaId),
+        ),
+      )
+      .orderBy(desc(userMediaHistory.watchedAt))
+      .limit(1);
+
+    if (latest) {
+      await tx
+        .delete(userMediaHistory)
+        .where(eq(userMediaHistory.id, latest.id));
+    }
+
+    return { watches: await countWatches(tx, input.userId, mediaId) };
+  });
+}
+
+export type WatchedEpisode = {
+  seasonNumber: number;
+  episodeNumber: number;
+};
+
+export async function listWatchedEpisodes(
+  userId: string,
+  key: MediaKey,
+): Promise<WatchedEpisode[]> {
+  return db
+    .select({
+      seasonNumber: userMediaEpisode.seasonNumber,
+      episodeNumber: userMediaEpisode.episodeNumber,
+    })
+    .from(userMediaEpisode)
+    .innerJoin(media, eq(media.id, userMediaEpisode.mediaId))
+    .where(
+      and(
+        eq(userMediaEpisode.userId, userId),
+        eq(media.mediaExternalId, key.externalId),
+        eq(media.type, key.type),
+      ),
+    )
+    .orderBy(
+      asc(userMediaEpisode.seasonNumber),
+      asc(userMediaEpisode.episodeNumber),
+    );
+}
+
+async function furthestEpisode(
+  tx: Transaction,
+  userId: string,
+  mediaId: string,
+): Promise<WatchedEpisode | null> {
+  const [row] = await tx
+    .select({
+      seasonNumber: userMediaEpisode.seasonNumber,
+      episodeNumber: userMediaEpisode.episodeNumber,
+    })
+    .from(userMediaEpisode)
+    .where(
+      and(
+        eq(userMediaEpisode.userId, userId),
+        eq(userMediaEpisode.mediaId, mediaId),
+      ),
+    )
+    .orderBy(
+      desc(userMediaEpisode.seasonNumber),
+      desc(userMediaEpisode.episodeNumber),
+    )
+    .limit(1);
+
+  return row ?? null;
+}
+
+async function episodeStatus(
+  tx: Transaction,
+  userId: string,
+  mediaId: string,
+): Promise<UserMediaStatus> {
+  const [row] = await tx
+    .select({ status: userMedia.status })
+    .from(userMedia)
+    .where(ownRow(userId, mediaId))
+    .limit(1);
+
+  return row?.status === FINISHED_STATUS ? FINISHED_STATUS : STARTED_STATUS;
+}
+
+export async function countWatchedEpisodes(
+  userId: string,
+  key: MediaKey,
+): Promise<number> {
+  const [row] = await db
+    .select({ total: count() })
+    .from(userMediaEpisode)
+    .innerJoin(media, eq(media.id, userMediaEpisode.mediaId))
+    .where(
+      and(
+        eq(userMediaEpisode.userId, userId),
+        eq(media.mediaExternalId, key.externalId),
+        eq(media.type, key.type),
+      ),
+    );
+
+  return row?.total ?? 0;
+}
+
+export async function setUserMediaEpisode(input: {
+  userId: string;
+  media: MediaInput;
+  seasonNumber: number;
+  episodeNumber: number;
+  watched: boolean;
+}) {
+  return db.transaction(async (tx) => {
+    const mediaId = await upsertMedia(tx, input.media);
+
+    if (input.watched) {
+      await tx
+        .insert(userMediaEpisode)
+        .values({
+          userId: input.userId,
+          mediaId,
+          type: input.media.type,
+          seasonNumber: input.seasonNumber,
+          episodeNumber: input.episodeNumber,
+        })
+        .onConflictDoNothing({
+          target: [
+            userMediaEpisode.userId,
+            userMediaEpisode.mediaId,
+            userMediaEpisode.seasonNumber,
+            userMediaEpisode.episodeNumber,
+          ],
+        });
+    } else {
+      await tx.delete(userMediaEpisode).where(
+        and(
+          eq(userMediaEpisode.userId, input.userId),
+          eq(userMediaEpisode.mediaId, mediaId),
+          eq(userMediaEpisode.seasonNumber, input.seasonNumber),
+          eq(userMediaEpisode.episodeNumber, input.episodeNumber),
+        ),
+      );
+    }
+
+    const furthest = await furthestEpisode(tx, input.userId, mediaId);
+    const status = await episodeStatus(tx, input.userId, mediaId);
+
+    await tx
+      .insert(userMedia)
+      .values({
+        userId: input.userId,
+        mediaId,
+        type: input.media.type,
+        status,
+        currentSeason: furthest?.seasonNumber ?? null,
+        currentEpisode: furthest?.episodeNumber ?? null,
+      })
+      .onConflictDoUpdate({
+        target: [userMedia.userId, userMedia.mediaId],
+        set: {
+          status,
+          currentSeason: furthest?.seasonNumber ?? null,
+          currentEpisode: furthest?.episodeNumber ?? null,
+          updatedAt: new Date(),
+        },
+      });
+
+    const [watched] = await tx
+      .select({ total: count() })
+      .from(userMediaEpisode)
+      .where(
+        and(
+          eq(userMediaEpisode.userId, input.userId),
+          eq(userMediaEpisode.mediaId, mediaId),
+        ),
+      );
+
+    return { watched: watched?.total ?? 0 };
+  });
 }

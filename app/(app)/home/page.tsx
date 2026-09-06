@@ -6,6 +6,7 @@ import { HOME_RAIL_SIZE, HOME_RECENT_SIZE, SIGN_IN_PATH } from "@/lib/constants"
 import { getCurrentUser } from "@/lib/auth/session";
 import {
   countUserMediaByStatus,
+  countWatchedEpisodes,
   listRecentlyWatched,
   listUserMediaByStatus,
 } from "@/lib/db/user-media";
@@ -28,9 +29,19 @@ export default async function Home() {
 
   if (tracked === 0) return <EmptyHome />;
 
+  const hero = watching.at(0);
+
+  const heroEpisodes = hero
+    ? await countWatchedEpisodes(user.id, {
+        externalId: hero.externalId,
+        type: hero.type,
+      })
+    : 0;
+
   return (
     <HomeFeed
       counts={counts}
+      heroEpisodes={heroEpisodes}
       watching={watching.map(toLibraryMedia)}
       want={want.map(toLibraryMedia)}
       recent={recent.map(toLibraryMedia)}

@@ -1,9 +1,9 @@
-import { Billboard } from "@/components/home/billboard";
+import { HomeHero } from "@/components/home/home-hero";
 import { IdleCard } from "@/components/home/idle-card";
 import { RecentlyWatched } from "@/components/home/recently-watched";
 import { MediaRow } from "@/components/media/media-row";
 import {
-  HOME_COUNT_TOKEN,
+  COUNT_TOKEN,
   HOME_LIBRARY_HREF,
   HOME_RAIL_SIZE,
   HOME_TITLE_UNIT,
@@ -24,21 +24,28 @@ type HomeFeedProps = {
   watching: LibraryMedia[];
   want: LibraryMedia[];
   recent: LibraryMedia[];
+  heroEpisodes: number;
 };
 
-export function HomeFeed({ counts, watching, want, recent }: HomeFeedProps) {
+export function HomeFeed({
+  counts,
+  watching,
+  want,
+  recent,
+  heroEpisodes,
+}: HomeFeedProps) {
   const [hero] = watching;
 
   const watchingNote = fill(HOME_WATCHING_NOTE, {
-    [HOME_COUNT_TOKEN]: String(counts.CURRENTLY_WATCHING),
+    [COUNT_TOKEN]: String(counts.CURRENTLY_WATCHING),
   });
   const wantNote = fill(HOME_WANT_NOTE, {
-    [HOME_COUNT_TOKEN]: counted(counts.WANT_TO_WATCH, HOME_TITLE_UNIT),
+    [COUNT_TOKEN]: counted(counts.WANT_TO_WATCH, HOME_TITLE_UNIT),
   });
 
   return (
     <main className="flex w-full flex-1 flex-col gap-[clamp(26px,3.5vw,38px)] pb-16">
-      {hero ? <Billboard item={hero} /> : null}
+      {hero ? <HomeHero item={hero} watchedEpisodes={heroEpisodes} /> : null}
 
       <div className="px-pad mx-auto flex w-full max-w-[1440px] flex-col gap-[clamp(26px,3.5vw,38px)] pt-[clamp(20px,3vw,32px)]">
         {hero ? null : (

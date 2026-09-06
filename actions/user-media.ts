@@ -4,7 +4,10 @@ import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/auth/session";
 import {
+  FIRST_SEASON_NUMBER,
   MEDIA_KEY_SEPARATOR,
+  MEDIA_RATING_MIN,
+  MEDIA_RATING_STARS,
   MEDIA_UNAVAILABLE_MESSAGE,
   SIGN_IN_PATH,
   SIGN_IN_REQUIRED_MESSAGE,
@@ -14,8 +17,12 @@ import { mediaType } from "@/lib/db/schema/media";
 import { userMediaStatus } from "@/lib/db/schema/user-media";
 import type { UserMediaStatus } from "@/lib/db/schema/user-media";
 import {
+  addUserMediaWatch,
   findMediaByExternalId,
+  removeUserMediaWatch,
   setUserMediaFavorite,
+  setUserMediaEpisode,
+  setUserMediaRating,
   setUserMediaStatus,
   type MediaInput,
 } from "@/lib/db/user-media";
@@ -83,6 +90,7 @@ async function loadMedia({ externalId, type }: MediaRef): Promise<MediaInput> {
     description: details.description,
     releaseDate: details.releaseDate,
     voteAverage: details.voteAverage,
+    episodeCount: details.episodeCount,
   };
 }
 
@@ -172,6 +180,193 @@ export async function setStatus(input: StatusInput): Promise<StatusState> {
     });
 
     return { status: entry.status, previousStatus };
+  } catch (error) {
+    console.error(error);
+    return { error: TRACKING_FAILED_MESSAGE };
+  }
+}
+
+const ratingSchema = z.object({
+  mediaKey: z.string(),
+  rating: z
+    .number()
+    .int()
+    .min(MEDIA_RATING_MIN)
+    .max(MEDIA_RATING_STARS)
+    .nullable(),
+});
+
+export type RatingInput = z.input<typeof ratingSchema>;
+
+export type RatingState = {
+  error?: string;
+  redirectTo?: string;
+  rating?: number | null;
+  created?: boolean;
+};
+
+const watchSchema = z.object({
+  mediaKey: z.string(),
+  delta: z.union([z.literal(1), z.literal(-1)]),
+});
+
+export type WatchInput = z.input<typeof watchSchema>;
+
+export type WatchState = {
+  error?: string;
+  redirectTo?: string;
+  watches?: number;
+};
+
+export async function setRating(input: RatingInput): Promise<RatingState> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { error: SIGN_IN_REQUIRED_MESSAGE, redirectTo: SIGN_IN_PATH };
+  }
+
+  const parsed = ratingSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return { error: TRACKING_FAILED_MESSAGE };
+  }
+
+  const ref = toMediaRef(parsed.data.mediaKey);
+
+  if (!ref.success) {
+    return { error: TRACKING_FAILED_MESSAGE };
+  }
+
+  let media: MediaInput;
+
+  try {
+    media = await resolveMedia(ref.data);
+  } catch {
+    return { error: MEDIA_UNAVAILABLE_MESSAGE };
+  }
+
+  try {
+    const result = await setUserMediaRating({
+      userId: user.id,
+      media,
+      rating: parsed.data.rating,
+    });
+
+    return {
+      rating: result.entry?.rating ?? null,
+      created: result.created,
+    };
+  } catch (error) {
+    console.error(error);
+    return { error: TRACKING_FAILED_MESSAGE };
+  }
+}
+
+export async function adjustWatches(input: WatchInput): Promise<WatchState> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { error: SIGN_IN_REQUIRED_MESSAGE, redirectTo: SIGN_IN_PATH };
+  }
+
+  const parsed = watchSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return { error: TRACKING_FAILED_MESSAGE };
+  }
+
+  const ref = toMediaRef(parsed.data.mediaKey);
+
+  if (!ref.success) {
+    return { error: TRACKING_FAILED_MESSAGE };
+  }
+
+  if (parsed.data.delta < 0) {
+    try {
+      const { watches } = await removeUserMediaWatch({
+        userId: user.id,
+        key: ref.data,
+      });
+
+      return { watches };
+    } catch (error) {
+      console.error(error);
+      return { error: TRACKING_FAILED_MESSAGE };
+    }
+  }
+
+  let media: MediaInput;
+
+  try {
+    media = await resolveMedia(ref.data);
+  } catch {
+    return { error: MEDIA_UNAVAILABLE_MESSAGE };
+  }
+
+  try {
+    const { watches } = await addUserMediaWatch({ userId: user.id, media });
+
+    return { watches };
+  } catch (error) {
+    console.error(error);
+    return { error: TRACKING_FAILED_MESSAGE };
+  }
+}
+
+const episodeSchema = z.object({
+  mediaKey: z.string(),
+  seasonNumber: z.number().int().min(FIRST_SEASON_NUMBER),
+  episodeNumber: z.number().int().min(FIRST_SEASON_NUMBER),
+  watched: z.boolean(),
+});
+
+export type EpisodeInput = z.input<typeof episodeSchema>;
+
+export type EpisodeState = {
+  error?: string;
+  redirectTo?: string;
+  watched?: number;
+};
+
+export async function setEpisodeWatched(
+  input: EpisodeInput,
+): Promise<EpisodeState> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { error: SIGN_IN_REQUIRED_MESSAGE, redirectTo: SIGN_IN_PATH };
+  }
+
+  const parsed = episodeSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return { error: TRACKING_FAILED_MESSAGE };
+  }
+
+  const ref = toMediaRef(parsed.data.mediaKey);
+
+  if (!ref.success || ref.data.type !== "TV_SHOW") {
+    return { error: TRACKING_FAILED_MESSAGE };
+  }
+
+  let media: MediaInput;
+
+  try {
+    media = await resolveMedia(ref.data);
+  } catch {
+    return { error: MEDIA_UNAVAILABLE_MESSAGE };
+  }
+
+  try {
+    const { watched } = await setUserMediaEpisode({
+      userId: user.id,
+      media,
+      seasonNumber: parsed.data.seasonNumber,
+      episodeNumber: parsed.data.episodeNumber,
+      watched: parsed.data.watched,
+    });
+
+    return { watched };
   } catch (error) {
     console.error(error);
     return { error: TRACKING_FAILED_MESSAGE };

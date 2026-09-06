@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import type { CSSProperties } from "react";
 
 import { MediaActions } from "@/components/media/media-actions";
@@ -10,7 +11,7 @@ import {
   HOVER_FADE_DELAY_MS,
   HOVER_FADE_MS,
   ENTRY_STATUS_LABELS,
-  HOVER_STATE_UNTRACKED,
+  MEDIA_UNTRACKED_LABEL,
   HOVER_TRANSITION_MS,
 } from "@/lib/constants";
 import type { HoverGeometry, HoverMedia } from "@/lib/media/hover";
@@ -46,6 +47,12 @@ export function HoverCard({ media, geometry, open }: HoverCardProps) {
       }
       className="border-line-2 bg-overlay ease-cue fixed z-[90] flex flex-col overflow-hidden rounded-xl border shadow-[0_26px_60px_rgba(0,0,0,.62)] transition-[left,top,width,height]"
     >
+      <Link
+        href={media.href}
+        aria-label={media.title}
+        className="absolute inset-0 z-10 block cursor-pointer"
+      />
+
       <div
         style={{ height: artHeight, ...duration }}
         className="ease-cue relative w-full shrink-0 bg-[repeating-linear-gradient(115deg,hsl(var(--h)_20%_16%)_0_12px,hsl(var(--h)_20%_21%)_12px_24px)] transition-[height]"
@@ -94,7 +101,7 @@ export function HoverCard({ media, geometry, open }: HoverCardProps) {
         <span className="text-gold-2 text-xs">
           {media.status
             ? ENTRY_STATUS_LABELS[media.status]
-            : HOVER_STATE_UNTRACKED}
+            : MEDIA_UNTRACKED_LABEL}
         </span>
         {media.tail ? (
           <span className="text-mut line-clamp-2 text-xs leading-[1.5]">

@@ -272,10 +272,21 @@
   }
 }
 
-@utility billboard-wash {
+@utility title-art {
+  --title-mask:
+    linear-gradient(180deg, rgba(0, 0, 0, .9) 0%, rgba(0, 0, 0, .55) 46%, transparent 92%),
+    linear-gradient(90deg, transparent 0, #000 22%, #000 74%, transparent 100%);
+
+  -webkit-mask-image: var(--title-mask);
+  -webkit-mask-composite: source-in;
+  mask-image: var(--title-mask);
+  mask-composite: intersect;
+}
+
+@utility title-scrim {
   background:
-    linear-gradient(180deg, rgba(11, 11, 12, .2) 0%, rgba(11, 11, 12, .55) 46%, var(--color-bg) 100%),
-    linear-gradient(90deg, rgba(11, 11, 12, .82), rgba(11, 11, 12, 0) 64%);
+    radial-gradient(80% 60% at 18% 40%, rgba(11, 11, 12, .94), rgba(11, 11, 12, .5) 55%, transparent),
+    linear-gradient(180deg, rgba(11, 11, 12, .7), transparent 30%, var(--color-bg) 100%);
 }
 
 @utility marquee-grain {

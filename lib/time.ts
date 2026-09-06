@@ -1,4 +1,7 @@
 import {
+  DATE_LOCALE,
+  DATE_LONG_OPTIONS,
+  DATE_SHORT_OPTIONS,
   DAY_MS,
   ISO_DATE_LENGTH,
   ISO_WEEK_THURSDAY,
@@ -37,4 +40,22 @@ export function relativeDayLabel(days: number): string {
 
 export function isoDate(date: Date): string {
   return new Date(startOfUtcDay(date)).toISOString().slice(0, ISO_DATE_LENGTH);
+}
+
+export function longDate(value: string | null): string | null {
+  if (!value) return null;
+
+  const time = Date.parse(`${value}T00:00:00Z`);
+  if (Number.isNaN(time)) return null;
+
+  return new Intl.DateTimeFormat(DATE_LOCALE, DATE_LONG_OPTIONS).format(time);
+}
+
+export function shortDate(value: string | null): string | null {
+  if (!value) return null;
+
+  const time = Date.parse(`${value}T00:00:00Z`);
+  if (Number.isNaN(time)) return null;
+
+  return new Intl.DateTimeFormat(DATE_LOCALE, DATE_SHORT_OPTIONS).format(time);
 }

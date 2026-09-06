@@ -2,6 +2,7 @@ import { sql, type InferEnum } from "drizzle-orm";
 import {
   check,
   date,
+  integer,
   pgEnum,
   pgTable,
   real,
@@ -28,6 +29,7 @@ export const media = pgTable(
     description: text("description"),
     releaseDate: date("release_date"),
     voteAverage: real("vote_average"),
+    episodeCount: integer("episode_count"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -43,5 +45,9 @@ export const media = pgTable(
       sql`btrim(${t.mediaExternalId}) <> ''`,
     ),
     check("chk_media_title_not_blank", sql`btrim(${t.title}) <> ''`),
+    check(
+      "chk_media_episode_count",
+      sql`${t.episodeCount} IS NULL OR ${t.episodeCount} >= 0`,
+    ),
   ],
 );

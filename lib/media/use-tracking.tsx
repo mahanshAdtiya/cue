@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useOptimistic, useTransition } from "react";
 
 import { setFavorite, setStatus } from "@/actions/user-media";
 import {
@@ -40,8 +40,8 @@ function statusToast(
 }
 
 export function useMediaTracking(seed: TrackingSeed) {
-  const [isFavorite, setFavorited] = useState(seed.isFavorite);
-  const [status, setTracked] = useState(seed.status);
+  const [isFavorite, showFavorite] = useOptimistic(seed.isFavorite);
+  const [status, showStatus] = useOptimistic(seed.status);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -49,45 +49,41 @@ export function useMediaTracking(seed: TrackingSeed) {
   const favoriteLabel = isFavorite ? FAVORITE_REMOVE_LABEL : FAVORITE_ADD_LABEL;
 
   function advanceStatus() {
-    const previous = status;
-    setTracked(next.status);
+    const wanted = next.status;
 
     startTransition(async () => {
-      const state = await setStatus({
-        mediaKey: seed.mediaKey,
-        status: next.status,
-      });
+      showStatus(wanted);
+
+      const state = await setStatus({ mediaKey: seed.mediaKey, status: wanted });
 
       if (state.error) {
-        setTracked(previous);
         toast.err(state.error);
         if (state.redirectTo) router.push(state.redirectTo);
         return;
       }
 
-      toast.show(statusToast(next.status, state.previousStatus));
+      toast.show(statusToast(wanted, state.previousStatus));
       router.refresh();
     });
   }
 
   function toggleFavorite() {
     const wanted = !isFavorite;
-    setFavorited(wanted);
 
     startTransition(async () => {
+      showFavorite(wanted);
+
       const state = await setFavorite({
         mediaKey: seed.mediaKey,
         isFavorite: wanted,
       });
 
       if (state.error) {
-        setFavorited(!wanted);
         toast.err(state.error);
         if (state.redirectTo) router.push(state.redirectTo);
         return;
       }
 
-      setFavorited(state.isFavorite ?? wanted);
       toast.show(favoriteToast(wanted, state.created));
       router.refresh();
     });
