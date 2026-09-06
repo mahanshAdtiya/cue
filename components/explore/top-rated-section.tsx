@@ -8,7 +8,7 @@ import {
   type ExploreFilter,
 } from "@/lib/constants";
 import { mediaRating } from "@/lib/media/display";
-import { withFavorites } from "@/lib/media/tracking";
+import { withTracking } from "@/lib/media/tracking";
 import type { MediaSummary } from "@/lib/tmdb/media";
 import { getTopRated } from "@/lib/tmdb/queries";
 
@@ -24,7 +24,7 @@ function score(item: MediaSummary) {
 }
 
 export async function TopRatedSection({ filter }: { filter: ExploreFilter }) {
-  const items = await withFavorites(
+  const items = await withTracking(
     (await getTopRated(filter)).slice(0, EXPLORE_RAIL_SIZE),
   );
 

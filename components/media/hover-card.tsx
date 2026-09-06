@@ -9,6 +9,7 @@ import {
   HOVER_CARD_SIZES,
   HOVER_FADE_DELAY_MS,
   HOVER_FADE_MS,
+  ENTRY_STATUS_LABELS,
   HOVER_STATE_UNTRACKED,
   HOVER_TRANSITION_MS,
 } from "@/lib/constants";
@@ -90,7 +91,11 @@ export function HoverCard({ media, geometry, open }: HoverCardProps) {
       >
         <MediaActions media={media} />
         <span className="mono">{media.meta}</span>
-        <span className="text-gold-2 text-xs">{HOVER_STATE_UNTRACKED}</span>
+        <span className="text-gold-2 text-xs">
+          {media.status
+            ? ENTRY_STATUS_LABELS[media.status]
+            : HOVER_STATE_UNTRACKED}
+        </span>
         {media.tail ? (
           <span className="text-mut line-clamp-2 text-xs leading-[1.5]">
             {media.tail}

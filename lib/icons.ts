@@ -13,6 +13,8 @@ export const ICON_PATHS = {
   info: "M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20ZM12 16.5V11M12 7.6h.01",
   plus: "M12 5v14M5 12h14",
   star: "M12 3 14.2 9 20.6 9.2 15.5 13.1 17.3 19.3 12 15.7 6.7 19.3 8.5 13.1 3.4 9.2 9.8 9Z",
+  play: "M7 4.5 19 12 7 19.5Z",
+  replay: "M3 5v6h6M4.6 15a9 9 0 1 0 1.2-8.2L3 11",
 } as const;
 
 export type IconName = keyof typeof ICON_PATHS;

@@ -172,17 +172,61 @@ export const RAIL_NEXT_LABEL = "Scroll right";
 export const HOVER_CARD_OPEN_LABEL = "Open";
 export const HOVER_STATE_UNTRACKED = "Not tracked yet";
 
-export type MediaAction = {
-  key: "want" | "watched" | "favorite";
+export type StatusAction = {
+  status: UserMediaStatus;
   icon: IconName;
   label: string;
 };
 
-export const MEDIA_ACTIONS = [
-  { key: "want", icon: "plus", label: "Want to watch" },
-  { key: "watched", icon: "check", label: "Mark as watched" },
-  { key: "favorite", icon: "star", label: "Add to favorites" },
-] as const satisfies readonly MediaAction[];
+export const UNTRACKED_STATUS_ACTION = {
+  status: "WANT_TO_WATCH",
+  icon: "plus",
+  label: "Want to watch",
+} as const satisfies StatusAction;
+
+export const NEXT_STATUS_ACTIONS = {
+  WANT_TO_WATCH: {
+    status: "CURRENTLY_WATCHING",
+    icon: "play",
+    label: "Start watching",
+  },
+  CURRENTLY_WATCHING: {
+    status: "WATCHED",
+    icon: "check",
+    label: "Mark as watched",
+  },
+  WATCHED: {
+    status: "CURRENTLY_WATCHING",
+    icon: "replay",
+    label: "Watch it again",
+  },
+} as const satisfies Record<UserMediaStatus, StatusAction>;
+
+export const FAVORITE_ADD_LABEL = "Add to favorites";
+
+export const STATUS_TOASTS = {
+  WANT_TO_WATCH: {
+    kind: "success",
+    label: "Added to your watchlist",
+    message: "It's waiting in your library.",
+  },
+  CURRENTLY_WATCHING: {
+    kind: "success",
+    label: "Now watching",
+    message: "It's in your currently watching list.",
+  },
+  WATCHED: {
+    kind: "success",
+    label: "Marked as watched",
+    message: "Added to your history.",
+  },
+} as const;
+
+export const REWATCH_TOAST = {
+  kind: "success",
+  label: "Rewatching",
+  message: "Your history is kept.",
+} as const;
 
 export const MEDIA_ACTION_PENDING = {
   kind: "info",

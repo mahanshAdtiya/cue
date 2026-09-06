@@ -102,3 +102,113 @@ export async function setUserMediaFavorite(input: {
     return { entry: entry ?? null, created: false };
   });
 }
+
+export async function findMediaByExternalId(
+  key: MediaKey,
+): Promise<MediaInput | null> {
+  const [row] = await db
+    .select({
+      externalId: media.mediaExternalId,
+      type: media.type,
+      title: media.title,
+      posterPath: media.posterPath,
+      description: media.description,
+      releaseDate: media.releaseDate,
+    })
+    .from(media)
+    .where(
+      and(eq(media.mediaExternalId, key.externalId), eq(media.type, key.type)),
+    )
+    .limit(1);
+
+  return row ?? null;
+}
+
+export async function setUserMediaStatus(input: {
+  userId: string;
+  media: MediaInput;
+  status: UserMediaStatus;
+}) {
+  return db.transaction(async (tx) => {
+    const mediaId = await upsertMedia(tx, input.media);
+
+    let [entry] = await tx
+      .insert(userMedia)
+      .values({
+        userId: input.userId,
+        mediaId,
+        type: input.media.type,
+        status: input.status,
+      })
+      .onConflictDoNothing({
+        target: [userMedia.userId, userMedia.mediaId],
+      })
+      .returning();
+
+    let previousStatus: UserMediaStatus | null = null;
+
+    if (!entry) {
+      previousStatus = await lockStatus(tx, input.userId, mediaId);
+
+      [entry] = await tx
+        .update(userMedia)
+        .set({ status: input.status, updatedAt: new Date() })
+        .where(ownRow(input.userId, mediaId))
+        .returning();
+    }
+
+    const finished = input.status === "WATCHED" && previousStatus !== "WATCHED";
+
+    if (finished) {
+      await recordFinish(tx, input.userId, mediaId);
+    }
+
+    return { entry, previousStatus, finished };
+  });
+}
+
+export async function findUserMediaByExternalIds(
+  userId: string,
+  keys: MediaKey[],
+): Promise<UserMediaEntry[]> {
+  if (keys.length === 0) {
+    return [];
+  }
+
+  return db
+    .select({
+      externalId: media.mediaExternalId,
+      type: media.type,
+      status: userMedia.status,
+      currentSeason: userMedia.currentSeason,
+      currentEpisode: userMedia.currentEpisode,
+      rating: userMedia.rating,
+      isFavorite: userMedia.isFavorite,
+    })
+    .from(userMedia)
+    .innerJoin(media, eq(media.id, userMedia.mediaId))
+    .where(
+      and(
+        eq(userMedia.userId, userId),
+        isNull(userMedia.archivedAt),
+        or(
+          ...keys.map((key) =>
+            and(
+              eq(media.mediaExternalId, key.externalId),
+              eq(media.type, key.type),
+            ),
+          ),
+        ),
+      ),
+    );
+}
+
+async function lockStatus(tx: Transaction, userId: string, mediaId: string) {
+  const [row] = await tx
+    .select({ status: userMedia.status })
+    .from(userMedia)
+    .where(ownRow(userId, mediaId))
+    .for("update");
+
+  return row.status;
+}

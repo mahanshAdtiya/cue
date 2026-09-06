@@ -4,18 +4,22 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
-import { setFavorite } from "@/actions/user-media";
+import { setFavorite, setStatus } from "@/actions/user-media";
 import { Icon } from "@/components/ui/icon";
 import { IconButton, iconButtonClass } from "@/components/ui/icon-button";
 import {
+  FAVORITE_ADD_LABEL,
   FAVORITE_ADDED_TOAST,
   FAVORITE_ADDED_WATCHED_TOAST,
   FAVORITE_REMOVED_TOAST,
   FAVORITE_REMOVE_LABEL,
   HOVER_CARD_OPEN_LABEL,
-  MEDIA_ACTIONS,
-  MEDIA_ACTION_PENDING,
+  NEXT_STATUS_ACTIONS,
+  REWATCH_TOAST,
+  STATUS_TOASTS,
+  UNTRACKED_STATUS_ACTION,
 } from "@/lib/constants";
+import type { UserMediaStatus } from "@/lib/db/schema/user-media";
 import type { HoverMedia } from "@/lib/media/hover";
 import { toast } from "@/lib/toast/store";
 
@@ -28,58 +32,91 @@ function favoriteToast(isFavorite: boolean, created?: boolean) {
   return created ? FAVORITE_ADDED_WATCHED_TOAST : FAVORITE_ADDED_TOAST;
 }
 
+function statusToast(
+  status: UserMediaStatus,
+  previousStatus?: UserMediaStatus | null,
+) {
+  if (status === "CURRENTLY_WATCHING" && previousStatus === "WATCHED") {
+    return REWATCH_TOAST;
+  }
+  return STATUS_TOASTS[status];
+}
+
 export function MediaActions({ media }: MediaActionsProps) {
-  const [isFavorite, setIsFavorite] = useState(media.isFavorite);
+  const [isFavorite, setFavorited] = useState(media.isFavorite);
+  const [status, setTracked] = useState(media.status);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
-  function toggleFavorite() {
-    const next = !isFavorite;
-    setIsFavorite(next);
+  const next = status ? NEXT_STATUS_ACTIONS[status] : UNTRACKED_STATUS_ACTION;
+
+  function advanceStatus() {
+    const previous = status;
+    setTracked(next.status);
 
     startTransition(async () => {
-      const state = await setFavorite({
+      const state = await setStatus({
         mediaKey: media.id,
-        isFavorite: next,
+        status: next.status,
       });
 
       if (state.error) {
-        setIsFavorite(!next);
+        setTracked(previous);
         toast.err(state.error);
         if (state.redirectTo) router.push(state.redirectTo);
         return;
       }
 
-      setIsFavorite(state.isFavorite ?? next);
-      toast.show(favoriteToast(next, state.created));
+      toast.show(statusToast(next.status, state.previousStatus));
+      router.refresh();
+    });
+  }
+
+  function toggleFavorite() {
+    const wanted = !isFavorite;
+    setFavorited(wanted);
+
+    startTransition(async () => {
+      const state = await setFavorite({
+        mediaKey: media.id,
+        isFavorite: wanted,
+      });
+
+      if (state.error) {
+        setFavorited(!wanted);
+        toast.err(state.error);
+        if (state.redirectTo) router.push(state.redirectTo);
+        return;
+      }
+
+      setFavorited(state.isFavorite ?? wanted);
+      toast.show(favoriteToast(wanted, state.created));
       router.refresh();
     });
   }
 
   return (
     <div className="flex items-center gap-2.5">
-      {MEDIA_ACTIONS.map((action) => {
-        const favorite = action.key === "favorite";
-
-        return (
-          <IconButton
-            key={action.key}
-            shape="round"
-            on={favorite && isFavorite}
-            disabled={favorite && pending}
-            aria-pressed={favorite ? isFavorite : undefined}
-            aria-label={
-              favorite && isFavorite ? FAVORITE_REMOVE_LABEL : action.label
-            }
-            className={favorite ? "disabled:opacity-60" : undefined}
-            onClick={
-              favorite ? toggleFavorite : () => toast.show(MEDIA_ACTION_PENDING)
-            }
-          >
-            <Icon name={action.icon} />
-          </IconButton>
-        );
-      })}
+      <IconButton
+        shape="round"
+        disabled={pending}
+        aria-label={next.label}
+        className="disabled:opacity-60"
+        onClick={advanceStatus}
+      >
+        <Icon name={next.icon} />
+      </IconButton>
+      <IconButton
+        shape="round"
+        on={isFavorite}
+        disabled={pending}
+        aria-pressed={isFavorite}
+        aria-label={isFavorite ? FAVORITE_REMOVE_LABEL : FAVORITE_ADD_LABEL}
+        className="disabled:opacity-60"
+        onClick={toggleFavorite}
+      >
+        <Icon name="star" />
+      </IconButton>
       <Link
         href={media.href}
         aria-label={HOVER_CARD_OPEN_LABEL}

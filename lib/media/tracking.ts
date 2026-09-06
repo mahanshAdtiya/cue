@@ -1,19 +1,25 @@
 import { getCurrentUser } from "@/lib/auth/session";
+import type { UserMediaStatus } from "@/lib/db/schema/user-media";
 import { findUserMediaByExternalIds } from "@/lib/db/user-media";
 import { mediaKey } from "@/lib/media/display";
 import type { MediaSummary } from "@/lib/tmdb/media";
 
-export type Tracked<T extends MediaSummary> = T & { isFavorite: boolean };
+export type Tracked<T extends MediaSummary> = T & {
+  isFavorite: boolean;
+  status: UserMediaStatus | null;
+};
 
 export type TrackedMedia = Tracked<MediaSummary>;
 
-export async function withFavorites<T extends MediaSummary>(
+const UNTRACKED = { isFavorite: false, status: null } as const;
+
+export async function withTracking<T extends MediaSummary>(
   items: T[],
 ): Promise<Tracked<T>[]> {
   const user = await getCurrentUser();
 
   if (!user || items.length === 0) {
-    return items.map((item) => ({ ...item, isFavorite: false }));
+    return items.map((item) => ({ ...item, ...UNTRACKED }));
   }
 
   const entries = await findUserMediaByExternalIds(
@@ -21,12 +27,13 @@ export async function withFavorites<T extends MediaSummary>(
     items.map(({ externalId, type }) => ({ externalId, type })),
   );
 
-  const favorited = new Set(
-    entries.filter((entry) => entry.isFavorite).map(mediaKey),
-  );
+  const tracked = new Map(entries.map((entry) => [mediaKey(entry), entry]));
 
-  return items.map((item) => ({
-    ...item,
-    isFavorite: favorited.has(mediaKey(item)),
-  }));
+  return items.map((item) => {
+    const entry = tracked.get(mediaKey(item));
+
+    if (!entry) return { ...item, ...UNTRACKED };
+
+    return { ...item, isFavorite: entry.isFavorite, status: entry.status };
+  });
 }

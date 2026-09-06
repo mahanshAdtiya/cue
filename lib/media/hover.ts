@@ -1,4 +1,5 @@
 import {
+  ENTRY_STATUS_LABELS,
   HOVER_CARD_ART_RATIO,
   HOVER_CARD_BODY_H,
   HOVER_CARD_MARGIN,
@@ -8,6 +9,7 @@ import {
   HOVER_TAIL_MAX,
 } from "@/lib/constants";
 import { hueOf, mediaHref, mediaKey, mediaMeta } from "@/lib/media/display";
+import type { UserMediaStatus } from "@/lib/db/schema/user-media";
 import type { TrackedMedia } from "@/lib/media/tracking";
 
 export const MEDIA_TARGET_SELECTOR = "[data-media-id]";
@@ -25,6 +27,7 @@ const ATTR = {
   backdrop: "data-media-backdrop",
   hue: "data-media-hue",
   favorite: "data-media-favorite",
+  status: "data-media-status",
 } as const;
 
 const ATTR_TRUE = "1";
@@ -39,6 +42,7 @@ export type HoverMedia = {
   backdrop: string | null;
   hue: number;
   isFavorite: boolean;
+  status: UserMediaStatus | null;
 };
 
 export type Rect = {
@@ -72,7 +76,14 @@ export function hoverAttrs(item: TrackedMedia): Record<string, string> {
     [ATTR.backdrop]: item.backdropCardUrl ?? "",
     [ATTR.hue]: String(hueOf(item.externalId)),
     [ATTR.favorite]: item.isFavorite ? ATTR_TRUE : "",
+    [ATTR.status]: item.status ?? "",
   };
+}
+
+function toStatus(value: string): UserMediaStatus | null {
+  return Object.hasOwn(ENTRY_STATUS_LABELS, value)
+    ? (value as UserMediaStatus)
+    : null;
 }
 
 export function readHoverMedia(target: HTMLElement): HoverMedia | null {
@@ -91,6 +102,7 @@ export function readHoverMedia(target: HTMLElement): HoverMedia | null {
     backdrop: read(ATTR.backdrop) || null,
     hue: Number(read(ATTR.hue)),
     isFavorite: read(ATTR.favorite) === ATTR_TRUE,
+    status: toStatus(read(ATTR.status)),
   };
 }
 
