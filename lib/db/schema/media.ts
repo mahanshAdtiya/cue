@@ -4,6 +4,7 @@ import {
   date,
   pgEnum,
   pgTable,
+  real,
   text,
   timestamp,
   unique,
@@ -23,8 +24,10 @@ export const media = pgTable(
     type: mediaType("type").notNull(),
     title: varchar("title", { length: 500 }).notNull(),
     posterPath: text("poster_path"),
+    backdropPath: text("backdrop_path"),
     description: text("description"),
     releaseDate: date("release_date"),
+    voteAverage: real("vote_average"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
