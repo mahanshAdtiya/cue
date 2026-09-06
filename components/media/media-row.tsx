@@ -11,11 +11,11 @@ import {
   MEDIA_ROW_SEE_ALL,
 } from "@/lib/constants";
 import { mediaKey } from "@/lib/media/display";
-import type { MediaSummary } from "@/lib/tmdb/media";
+import type { TrackedMedia } from "@/lib/media/tracking";
 
 type MediaRowProps = {
   title: string;
-  items: MediaSummary[];
+  items: TrackedMedia[];
   seeAllHref: string;
   as?: "h1" | "h2" | "h3";
   note?: string;
@@ -24,7 +24,7 @@ type MediaRowProps = {
   limit?: number;
   priority?: boolean;
   ranked?: boolean;
-  sub?: (item: MediaSummary) => ReactNode;
+  sub?: (item: TrackedMedia) => ReactNode;
   action?: ReactNode;
 };
 

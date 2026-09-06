@@ -183,6 +183,7 @@ export function HoverLayer() {
 
   return createPortal(
     <HoverCard
+      key={active.media.id}
       media={active.media}
       geometry={active.geometry}
       open={phase === "open"}

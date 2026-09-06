@@ -81,10 +81,14 @@ export function HoverCard({ media, geometry, open }: HoverCardProps) {
       </div>
 
       <div
-        style={{ width: geometry.open.width, height: HOVER_CARD_BODY_H, ...fade }}
+        style={{
+          width: geometry.open.width,
+          height: HOVER_CARD_BODY_H,
+          ...fade,
+        }}
         className={`ease-cue flex shrink-0 flex-col gap-2.5 px-4 pt-3.5 pb-4 transition-opacity ${open ? "opacity-100" : "opacity-0"}`}
       >
-        <MediaActions href={media.href} />
+        <MediaActions media={media} />
         <span className="mono">{media.meta}</span>
         <span className="text-gold-2 text-xs">{HOVER_STATE_UNTRACKED}</span>
         {media.tail ? (

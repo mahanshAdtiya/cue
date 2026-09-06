@@ -1,0 +1,104 @@
+import { and, eq, isNull, or, sql } from "drizzle-orm";
+
+import { db } from "./client";
+import { media, type MediaType } from "./schema/media";
+import { userMedia, type UserMediaStatus } from "./schema/user-media";
+import { userMediaHistory } from "./schema/user-media-history";
+
+const FAVORITED_UNTRACKED_STATUS: UserMediaStatus = "WATCHED";
+
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+export type MediaKey = {
+  externalId: string;
+  type: MediaType;
+};
+
+export type MediaInput = MediaKey & {
+  title: string;
+  posterPath: string | null;
+  description: string | null;
+  releaseDate: string | null;
+};
+
+export type UserMediaEntry = MediaKey & {
+  status: UserMediaStatus;
+  currentSeason: number | null;
+  currentEpisode: number | null;
+  rating: number | null;
+  isFavorite: boolean;
+};
+
+async function recordFinish(tx: Transaction, userId: string, mediaId: string) {
+  await tx.insert(userMediaHistory).values({ userId, mediaId });
+}
+
+function ownRow(userId: string, mediaId: string) {
+  return and(eq(userMedia.userId, userId), eq(userMedia.mediaId, mediaId));
+}
+
+async function upsertMedia(tx: Transaction, input: MediaInput) {
+  const [row] = await tx
+    .insert(media)
+    .values({
+      mediaExternalId: input.externalId,
+      type: input.type,
+      title: input.title,
+      posterPath: input.posterPath,
+      description: input.description,
+      releaseDate: input.releaseDate,
+    })
+    .onConflictDoUpdate({
+      target: [media.mediaExternalId, media.type],
+      set: {
+        title: sql`excluded.title`,
+        posterPath: sql`coalesce(excluded.poster_path, ${media.posterPath})`,
+        description: sql`coalesce(excluded.description, ${media.description})`,
+        releaseDate: sql`coalesce(excluded.release_date, ${media.releaseDate})`,
+        updatedAt: new Date(),
+      },
+    })
+    .returning({ id: media.id });
+
+  return row.id;
+}
+
+export async function setUserMediaFavorite(input: {
+  userId: string;
+  media: MediaInput;
+  isFavorite: boolean;
+}) {
+  return db.transaction(async (tx) => {
+    const mediaId = await upsertMedia(tx, input.media);
+
+    if (input.isFavorite) {
+      const [created] = await tx
+        .insert(userMedia)
+        .values({
+          userId: input.userId,
+          mediaId,
+          type: input.media.type,
+          status: FAVORITED_UNTRACKED_STATUS,
+          isFavorite: true,
+        })
+        .onConflictDoNothing({
+          target: [userMedia.userId, userMedia.mediaId],
+        })
+        .returning();
+
+      if (created) {
+        await recordFinish(tx, input.userId, mediaId);
+
+        return { entry: created, created: true };
+      }
+    }
+
+    const [entry] = await tx
+      .update(userMedia)
+      .set({ isFavorite: input.isFavorite, updatedAt: new Date() })
+      .where(ownRow(input.userId, mediaId))
+      .returning();
+
+    return { entry: entry ?? null, created: false };
+  });
+}

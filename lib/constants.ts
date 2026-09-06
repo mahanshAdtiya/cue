@@ -11,6 +11,13 @@ export const MAX_PASSWORD_LENGTH = 128;
 
 export const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
 
+export const SIGN_IN_PATH = "/signin";
+export const MEDIA_KEY_SEPARATOR = ":";
+export const SIGN_IN_REQUIRED_MESSAGE = "Sign in to track what you watch.";
+export const MEDIA_UNAVAILABLE_MESSAGE =
+  "We could not look that title up just now. Try again in a moment.";
+export const TRACKING_FAILED_MESSAGE = "That did not go through. Try again.";
+
 export const SIGNED_IN_TOAST = {
   kind: "success",
   label: "Signed in",
@@ -181,6 +188,26 @@ export const MEDIA_ACTION_PENDING = {
   kind: "info",
   label: "Not wired up yet",
   message: "Tracking lands once the user-media server actions exist.",
+} as const;
+
+export const FAVORITE_REMOVE_LABEL = "Remove from favorites";
+
+export const FAVORITE_ADDED_TOAST = {
+  kind: "success",
+  label: "Added to favorites",
+  message: "You'll find it in your library.",
+} as const;
+
+export const FAVORITE_ADDED_WATCHED_TOAST = {
+  kind: "success",
+  label: "Added to favorites",
+  message: "Marked as watched too — change that on its page.",
+} as const;
+
+export const FAVORITE_REMOVED_TOAST = {
+  kind: "info",
+  label: "Removed from favorites",
+  message: "Still in your library.",
 } as const;
 
 export const MEDIA_RANK_PAD = 2;

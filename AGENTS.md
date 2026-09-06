@@ -22,7 +22,12 @@ way. Shipping fast is not the goal; understanding is.
    next file without being asked.
 4. **Explain the why**, especially around the server/client boundary — that is
    the thing being learned, not just the thing being built.
-5. **Verify before asserting.** This Next.js and Tailwind are both newer than
+5. **Readable beats clever.** The code is read far more than it is written, and
+   it is read to learn from. Prefer a plain statement over a dense expression, a
+   named intermediate over a nested one, and four obvious queries over one that
+   needs a paragraph to explain. If a line needs a comment to survive, rewrite
+   the line — we do not ship comments.
+6. **Verify before asserting.** This Next.js and Tailwind are both newer than
    training data. Read `node_modules/next/dist/docs/` and check installed
    package versions rather than recalling API shapes.
 
@@ -41,6 +46,15 @@ way. Shipping fast is not the goal; understanding is.
   non-commercial on Hobby.) Develop locally; deploy later.
 - **Tailwind v4** for styling, not CSS Modules. Design tokens live in `@theme`
   in `app/globals.css`.
+- **Server Actions never trust client-supplied media metadata.** A write takes
+  identifiers only — `externalId` and `type` — and re-fetches the title from
+  TMDB server-side to build the row. Titles, posters and overviews posted from
+  the browser are forgeable, and they land in a table every user shares.
+- **The server is the state manager.** There is no client store, and there will
+  not be one for data the server owns. A mutation calls a Server Action and
+  `revalidatePath`; the server re-renders and the DOM updates. Client state is
+  only ever for what is local or in flight — a hover, an open drawer, an
+  optimistic pending value.
 
 ## Project structure
 
@@ -49,7 +63,7 @@ One rule per directory:
 | Directory | Holds | Rule |
 |---|---|---|
 | `app/` | routes only | if a file is here, it is a URL — and it sits in a group |
-| `components/` | presentational UI | must not touch the database |
+| `components/` | UI, and the section components that fetch for it | never contains SQL — reads go through `lib/db`, and only a data-fetching section may call one |
 | `actions/` | `'use server'` mutations | thin: auth → validate → call `lib/db` → revalidate |
 | `lib/db/` | all SQL | **zero Next.js imports** |
 | `lib/tmdb/` | external media API | server-only; the key never reaches the client — see `claude/docs/tmdb-api.md` |
@@ -133,6 +147,16 @@ is read to understand a design, and ported into `app/` and `components/` by hand
 It never ships, is never imported by application code, and no build step touches
 it. Vanilla JS and plain CSS there are fine — that is the point of it. Real work
 is TypeScript, React and Tailwind under the directories in the table above.
+
+**The prototype is a UI/UX reference, never an implementation reference.** Read
+it for what the interface does — the states a control can be in, what each
+transition feels like, the copy, the layout, the motion. Do not read its
+JavaScript as a blueprint. Its data model, function boundaries, state handling
+and storage exist to make a single-file demo work in a browser with
+`localStorage`; none of that is an argument for how to shape a table, a query,
+a server action or a component tree here. Where the two disagree, the real stack
+wins, and "the prototype does it this way" is not a reason for anything below
+the surface.
 
 ## Where things live
 

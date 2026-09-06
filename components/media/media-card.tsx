@@ -5,10 +5,10 @@ import { Poster } from "@/components/media/poster";
 import { MEDIA_CARD_SIZES } from "@/lib/constants";
 import { hueOf, mediaHref, mediaSub, rankLabel } from "@/lib/media/display";
 import { hoverAttrs } from "@/lib/media/hover";
-import type { MediaSummary } from "@/lib/tmdb/media";
+import type { TrackedMedia } from "@/lib/media/tracking";
 
 type MediaCardProps = {
-  item: MediaSummary;
+  item: TrackedMedia;
   priority?: boolean;
   rank?: number;
   sub?: ReactNode;

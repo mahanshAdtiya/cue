@@ -8,7 +8,7 @@ import {
   HOVER_TAIL_MAX,
 } from "@/lib/constants";
 import { hueOf, mediaHref, mediaKey, mediaMeta } from "@/lib/media/display";
-import type { MediaSummary } from "@/lib/tmdb/media";
+import type { TrackedMedia } from "@/lib/media/tracking";
 
 export const MEDIA_TARGET_SELECTOR = "[data-media-id]";
 export const MEDIA_ART_SELECTOR = "[data-media-art]";
@@ -24,7 +24,10 @@ const ATTR = {
   poster: "data-media-poster",
   backdrop: "data-media-backdrop",
   hue: "data-media-hue",
+  favorite: "data-media-favorite",
 } as const;
+
+const ATTR_TRUE = "1";
 
 export type HoverMedia = {
   id: string;
@@ -35,6 +38,7 @@ export type HoverMedia = {
   poster: string | null;
   backdrop: string | null;
   hue: number;
+  isFavorite: boolean;
 };
 
 export type Rect = {
@@ -57,7 +61,7 @@ function tail(description: string | null): string {
   return description.slice(0, HOVER_TAIL_MAX).trimEnd() + HOVER_TAIL_ELLIPSIS;
 }
 
-export function hoverAttrs(item: MediaSummary): Record<string, string> {
+export function hoverAttrs(item: TrackedMedia): Record<string, string> {
   return {
     [ATTR.id]: mediaKey(item),
     [ATTR.href]: mediaHref(item),
@@ -67,6 +71,7 @@ export function hoverAttrs(item: MediaSummary): Record<string, string> {
     [ATTR.poster]: item.posterUrl ?? "",
     [ATTR.backdrop]: item.backdropCardUrl ?? "",
     [ATTR.hue]: String(hueOf(item.externalId)),
+    [ATTR.favorite]: item.isFavorite ? ATTR_TRUE : "",
   };
 }
 
@@ -85,6 +90,7 @@ export function readHoverMedia(target: HTMLElement): HoverMedia | null {
     poster: read(ATTR.poster) || null,
     backdrop: read(ATTR.backdrop) || null,
     hue: Number(read(ATTR.hue)),
+    isFavorite: read(ATTR.favorite) === ATTR_TRUE,
   };
 }
 

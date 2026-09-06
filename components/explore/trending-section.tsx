@@ -7,10 +7,13 @@ import {
   type ExploreFilter,
 } from "@/lib/constants";
 import { rankLabel } from "@/lib/media/display";
+import { withFavorites } from "@/lib/media/tracking";
 import { getTrending } from "@/lib/tmdb/queries";
 
 export async function TrendingSection({ filter }: { filter: ExploreFilter }) {
-  const items = (await getTrending(filter)).slice(0, EXPLORE_RAIL_SIZE);
+  const items = await withFavorites(
+    (await getTrending(filter)).slice(0, EXPLORE_RAIL_SIZE),
+  );
 
   return (
     <MediaRow

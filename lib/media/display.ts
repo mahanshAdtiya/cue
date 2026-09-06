@@ -4,6 +4,7 @@ import {
   MEDIA_EXTENT_FEATURE,
   MEDIA_HUE_SEED,
   MEDIA_HUE_STEPS,
+  MEDIA_KEY_SEPARATOR,
   MEDIA_KIND_LABELS,
   MEDIA_RANK_PAD,
   MEDIA_RATING_DECIMALS,
@@ -25,8 +26,11 @@ export function hueOf(externalId: string): number {
   return hue;
 }
 
-export function mediaKey(item: MediaSummary): string {
-  return `${item.type}:${item.externalId}`;
+export function mediaKey(item: {
+  externalId: string;
+  type: MediaType;
+}): string {
+  return `${item.type}${MEDIA_KEY_SEPARATOR}${item.externalId}`;
 }
 
 export function mediaHref(item: MediaSummary): string {
@@ -42,7 +46,9 @@ export function mediaKindLabel(item: MediaSummary): string {
 }
 
 export function mediaSub(item: MediaSummary): string {
-  return [item.year, mediaKindLabel(item)].filter(Boolean).join(MEDIA_SEPARATOR);
+  return [item.year, mediaKindLabel(item)]
+    .filter(Boolean)
+    .join(MEDIA_SEPARATOR);
 }
 
 export function mediaRating(item: MediaSummary): string | null {
@@ -68,8 +74,12 @@ export function mediaExtent(details: MediaDetails): string | null {
   if (details.type === "MOVIE") return MEDIA_EXTENT_FEATURE;
 
   const parts = [
-    details.seasonCount ? counted(details.seasonCount, MEDIA_SEASON_UNIT) : null,
-    details.episodeCount ? counted(details.episodeCount, MEDIA_EPISODE_UNIT) : null,
+    details.seasonCount
+      ? counted(details.seasonCount, MEDIA_SEASON_UNIT)
+      : null,
+    details.episodeCount
+      ? counted(details.episodeCount, MEDIA_EPISODE_UNIT)
+      : null,
   ].filter(Boolean);
 
   return parts.length ? parts.join(MEDIA_SEPARATOR) : null;
