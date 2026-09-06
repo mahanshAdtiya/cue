@@ -1,5 +1,7 @@
 import {
   MEDIA_EPISODE_CODE,
+  MEDIA_RATING_EMPTY_GLYPH,
+  MEDIA_RATING_STARS,
   MEDIA_EPISODE_UNIT,
   MEDIA_EXTENT_FEATURE,
   MEDIA_HUE_SEED,
@@ -66,7 +68,7 @@ export function rankLabel(position: number): string {
   return String(position).padStart(MEDIA_RANK_PAD, "0");
 }
 
-function counted(count: number, unit: readonly [string, string]): string {
+export function counted(count: number, unit: readonly [string, string]): string {
   return `${count} ${count === 1 ? unit[0] : unit[1]}`;
 }
 
@@ -90,4 +92,10 @@ export function episodeCode(season: number, episode: number): string {
     `${MEDIA_SEASON_CODE}${rankLabel(season)}`,
     `${MEDIA_EPISODE_CODE}${rankLabel(episode)}`,
   ].join(" ");
+}
+
+export function starString(rating: number | null): string {
+  if (!rating) return "";
+  const filled = MEDIA_RATING_GLYPH.repeat(rating);
+  return filled + MEDIA_RATING_EMPTY_GLYPH.repeat(MEDIA_RATING_STARS - rating);
 }

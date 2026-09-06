@@ -79,8 +79,10 @@ async function loadMedia({ externalId, type }: MediaRef): Promise<MediaInput> {
     type: details.type,
     title: details.title,
     posterPath: details.posterPath,
+    backdropPath: details.backdropPath,
     description: details.description,
     releaseDate: details.releaseDate,
+    voteAverage: details.voteAverage,
   };
 }
 

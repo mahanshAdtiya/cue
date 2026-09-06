@@ -1,7 +1,11 @@
 import { cookies } from "next/headers";
 import { cache } from "react";
 
-import { SESSION_COOKIE_NAME, SESSION_LIFETIME_MS } from "@/lib/constants";
+import {
+  SESSION_COOKIE_NAME,
+  SESSION_COOKIE_PATH,
+  SESSION_LIFETIME_MS,
+} from "@/lib/constants";
 import {
   createSession,
   deleteSession,
@@ -21,7 +25,7 @@ export async function createUserSession(userId: string) {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    path: "/",
+    path: SESSION_COOKIE_PATH,
     expires: expiresAt,
   });
 }
@@ -47,5 +51,8 @@ export async function destroySession() {
     await deleteSession(hashSessionToken(token));
   }
 
-  cookieStore.delete(SESSION_COOKIE_NAME);
+  cookieStore.delete({
+    name: SESSION_COOKIE_NAME,
+    path: SESSION_COOKIE_PATH,
+  });
 }

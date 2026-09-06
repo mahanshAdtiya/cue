@@ -122,7 +122,7 @@ function nonEmpty(value: string | null | undefined): string | null {
   return trimmed ? trimmed : null;
 }
 
-function yearOf(releaseDate: string | null): number | null {
+export function yearOf(releaseDate: string | null): number | null {
   if (!releaseDate) return null;
   const year = Number(releaseDate.slice(0, 4));
   return Number.isInteger(year) && year > 0 ? year : null;

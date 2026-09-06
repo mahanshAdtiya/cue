@@ -4,6 +4,7 @@ import type { UserMediaStatus } from "@/lib/db/schema/user-media";
 
 export const SESSION_TOKEN_BYTES = 32;
 export const SESSION_COOKIE_NAME = "cue_session";
+export const SESSION_COOKIE_PATH = "/";
 export const SESSION_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
 
 export const MIN_PASSWORD_LENGTH = 8;
@@ -12,6 +13,7 @@ export const MAX_PASSWORD_LENGTH = 128;
 export const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
 
 export const SIGN_IN_PATH = "/signin";
+export const SIGN_OUT_PATH = "/signout";
 export const MEDIA_KEY_SEPARATOR = ":";
 export const SIGN_IN_REQUIRED_MESSAGE = "Sign in to track what you watch.";
 export const MEDIA_UNAVAILABLE_MESSAGE =
@@ -329,3 +331,40 @@ export const TMDB_SORT_RATING = "vote_average.desc";
 export const TMDB_SORT_POPULARITY = "popularity.desc";
 export const ISO_DATE_LENGTH = 10;
 export const EXPLORE_SCOPE_SELECTOR = "[data-explore-scope]";
+
+export const HOME_RAIL_SIZE = 12;
+export const HOME_RECENT_SIZE = 4;
+
+export const HOME_COUNT_TOKEN = "{n}";
+export const HOME_WATCHED_COUNT_TOKEN = "{m}";
+
+export const HOME_LIBRARY_HREF = "/library";
+export const HOME_EXPLORE_HREF = "/explore";
+
+export const HOME_HERO_KICKER = "Pick up where you left off";
+export const HOME_HERO_OPEN = "Open title";
+export const HOME_HERO_SIZES = "100vw";
+
+export const HOME_IDLE_KICKER = "Nothing in progress";
+export const HOME_IDLE_TITLE = "Start something tonight";
+export const HOME_IDLE_BODY =
+  "You have {n} waiting and {m} behind you. Move one to currently watching and it lands here.";
+export const HOME_IDLE_BROWSE = "Find something";
+export const HOME_IDLE_LIBRARY = "Open my library";
+
+export const HOME_WATCHING_TITLE = "Currently watching";
+export const HOME_WATCHING_NOTE = "{n} on the go. No judgement.";
+export const HOME_WATCHING_EMPTY = "Nothing in progress yet.";
+
+export const HOME_WANT_TITLE = "Want to watch";
+export const HOME_WANT_NOTE = "{n} deep";
+export const HOME_WANT_EMPTY = "Your list is empty. Go add something.";
+
+export const HOME_RECENT_TITLE = "Recently watched";
+export const HOME_RECENT_EMPTY = "Nothing finished yet.";
+export const HOME_RECENT_SIZES = "36px";
+
+export const HOME_TITLE_UNIT = ["title", "titles"] as const;
+
+export const MEDIA_RATING_EMPTY_GLYPH = "☆";
+export const MEDIA_RATING_STARS = 5;

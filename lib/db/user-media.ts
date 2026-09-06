@@ -1,4 +1,4 @@
-import { and, eq, isNull, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, isNull, max, or, sql } from "drizzle-orm";
 
 import { db } from "./client";
 import { media, type MediaType } from "./schema/media";
@@ -6,6 +6,12 @@ import { userMedia, type UserMediaStatus } from "./schema/user-media";
 import { userMediaHistory } from "./schema/user-media-history";
 
 const FAVORITED_UNTRACKED_STATUS: UserMediaStatus = "WATCHED";
+
+const ZERO_COUNTS: UserMediaCounts = {
+  WANT_TO_WATCH: 0,
+  CURRENTLY_WATCHING: 0,
+  WATCHED: 0,
+};
 
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -17,8 +23,10 @@ export type MediaKey = {
 export type MediaInput = MediaKey & {
   title: string;
   posterPath: string | null;
+  backdropPath: string | null;
   description: string | null;
   releaseDate: string | null;
+  voteAverage: number | null;
 };
 
 export type UserMediaEntry = MediaKey & {
@@ -27,6 +35,36 @@ export type UserMediaEntry = MediaKey & {
   currentEpisode: number | null;
   rating: number | null;
   isFavorite: boolean;
+};
+
+export type LibraryRow = MediaInput & {
+  status: UserMediaStatus;
+  currentSeason: number | null;
+  currentEpisode: number | null;
+  rating: number | null;
+  isFavorite: boolean;
+};
+
+export type WatchedRow = LibraryRow & {
+  watchedAt: Date | null;
+};
+
+export type UserMediaCounts = Record<UserMediaStatus, number>;
+
+const libraryColumns = {
+  externalId: media.mediaExternalId,
+  type: media.type,
+  title: media.title,
+  posterPath: media.posterPath,
+  backdropPath: media.backdropPath,
+  description: media.description,
+  releaseDate: media.releaseDate,
+  voteAverage: media.voteAverage,
+  status: userMedia.status,
+  currentSeason: userMedia.currentSeason,
+  currentEpisode: userMedia.currentEpisode,
+  rating: userMedia.rating,
+  isFavorite: userMedia.isFavorite,
 };
 
 async function recordFinish(tx: Transaction, userId: string, mediaId: string) {
@@ -45,16 +83,20 @@ async function upsertMedia(tx: Transaction, input: MediaInput) {
       type: input.type,
       title: input.title,
       posterPath: input.posterPath,
+      backdropPath: input.backdropPath,
       description: input.description,
       releaseDate: input.releaseDate,
+      voteAverage: input.voteAverage,
     })
     .onConflictDoUpdate({
       target: [media.mediaExternalId, media.type],
       set: {
         title: sql`excluded.title`,
         posterPath: sql`coalesce(excluded.poster_path, ${media.posterPath})`,
+        backdropPath: sql`coalesce(excluded.backdrop_path, ${media.backdropPath})`,
         description: sql`coalesce(excluded.description, ${media.description})`,
         releaseDate: sql`coalesce(excluded.release_date, ${media.releaseDate})`,
+        voteAverage: sql`coalesce(excluded.vote_average, ${media.voteAverage})`,
         updatedAt: new Date(),
       },
     })
@@ -112,8 +154,10 @@ export async function findMediaByExternalId(
       type: media.type,
       title: media.title,
       posterPath: media.posterPath,
+      backdropPath: media.backdropPath,
       description: media.description,
       releaseDate: media.releaseDate,
+      voteAverage: media.voteAverage,
     })
     .from(media)
     .where(
@@ -211,4 +255,66 @@ async function lockStatus(tx: Transaction, userId: string, mediaId: string) {
     .for("update");
 
   return row.status;
+}
+export async function listUserMediaByStatus(
+  userId: string,
+  status: UserMediaStatus,
+  limit: number,
+): Promise<LibraryRow[]> {
+  return db
+    .select(libraryColumns)
+    .from(userMedia)
+    .innerJoin(media, eq(media.id, userMedia.mediaId))
+    .where(
+      and(
+        eq(userMedia.userId, userId),
+        eq(userMedia.status, status),
+        isNull(userMedia.archivedAt),
+      ),
+    )
+    .orderBy(desc(userMedia.updatedAt))
+    .limit(limit);
+}
+
+export async function listRecentlyWatched(
+  userId: string,
+  limit: number,
+): Promise<WatchedRow[]> {
+  const lastWatchedAt = max(userMediaHistory.watchedAt);
+
+  return db
+    .select({ ...libraryColumns, watchedAt: lastWatchedAt })
+    .from(userMediaHistory)
+    .innerJoin(media, eq(media.id, userMediaHistory.mediaId))
+    .innerJoin(
+      userMedia,
+      and(
+        eq(userMedia.userId, userMediaHistory.userId),
+        eq(userMedia.mediaId, userMediaHistory.mediaId),
+      ),
+    )
+    .where(
+      and(eq(userMediaHistory.userId, userId), isNull(userMedia.archivedAt)),
+    )
+    .groupBy(media.id, userMedia.id)
+    .orderBy(desc(lastWatchedAt))
+    .limit(limit);
+}
+
+export async function countUserMediaByStatus(
+  userId: string,
+): Promise<UserMediaCounts> {
+  const rows = await db
+    .select({ status: userMedia.status, total: count() })
+    .from(userMedia)
+    .where(and(eq(userMedia.userId, userId), isNull(userMedia.archivedAt)))
+    .groupBy(userMedia.status);
+
+  const counts = { ...ZERO_COUNTS };
+
+  for (const row of rows) {
+    counts[row.status] = row.total;
+  }
+
+  return counts;
 }
