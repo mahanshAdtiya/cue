@@ -69,7 +69,7 @@ export function UpcomingList({ episodes }: { episodes: UpcomingEpisode[] }) {
                   <b className="truncate text-sm font-medium">
                     {episode.media.title}
                   </b>
-                  <span className="text-(color:--color-label) text-label font-mono tracking-[.08em] uppercase">
+                  <span className="text-(color:--color-cap) text-label font-mono tracking-[.08em] uppercase">
                     {airLine(episode)}
                   </span>
                 </Link>

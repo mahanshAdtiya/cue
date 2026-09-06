@@ -361,7 +361,6 @@ export const EXPLORE_SCOPE_SELECTOR = "[data-explore-scope]";
 export const HOME_RAIL_SIZE = 12;
 export const HOME_RECENT_SIZE = 4;
 
-
 export const HOME_LIBRARY_HREF = "/library";
 export const HOME_EXPLORE_HREF = "/explore";
 
@@ -502,3 +501,49 @@ export const REMOVED_FROM_LIST_TOAST = {
   label: "Removed from your list",
   message: "It is out of your library. Add it again any time.",
 } as const;
+
+export const SEARCH_ENDPOINT = "/api/search";
+export const SEARCH_QUERY_PARAM = "q";
+export const SEARCH_DEBOUNCE_MS = 250;
+export const SEARCH_MIN_QUERY_LENGTH = 3;
+export const SEARCH_HIT_SIZES = "36px";
+export const SEARCH_UNAVAILABLE_MESSAGE =
+  "Search is unavailable right now. Try again in a moment.";
+
+export const STATUS_BADGE_LABELS = {
+  WANT_TO_WATCH: "Want",
+  CURRENTLY_WATCHING: "Watching",
+  WATCHED: "Watched",
+} as const satisfies Record<UserMediaStatus, string>;
+
+export const SEARCH_LABEL = "Search";
+export const SEARCH_SHORTCUT = "\u2318K";
+export const SEARCH_SHORTCUT_KEY = "k";
+export const SEARCH_PLACEHOLDER = "Search movies, shows and anime";
+export const SEARCH_DISMISS_LABEL = "ESC";
+export const SEARCH_RESULTS_LABEL = "Titles";
+export const SEARCH_SKELETON_ROWS = 6;
+
+export const SEARCH_IDLE_TITLE = "Start typing";
+export const SEARCH_IDLE_BODY =
+  "Find a movie, show or anime and track it from anywhere.";
+export const SEARCH_EMPTY_TITLE = "Nothing here yet";
+export const SEARCH_EMPTY_BODY = "No title matches that. Check the spelling.";
+export const SEARCH_ERROR_TITLE = "Search is down";
+
+export const SEARCH_COUNT_LABEL = ["result", "results"] as const;
+export const SEARCH_HINTS = [
+  { keys: "\u2191\u2193", label: "Move" },
+  { keys: "\u21b5", label: "Open" },
+  { keys: "ESC", label: "Close" },
+] as const;
+
+export const SEARCH_RECENTS_KEY = "cue.recentSearches";
+export const SEARCH_RECENTS_LIMIT = 3;
+export const SEARCH_RECENTS_LABEL = "Recent";
+export const SEARCH_RECENTS_CLEAR = "Clear";
+export const SEARCH_RECENTS_EMPTY = "Nothing opened from search yet.";
+export const SEARCH_RECENT_REMOVE_LABEL = "Forget {n}";
+
+export const SEARCH_PREVIEW_SIZES = "132px";
+export const SEARCH_PREVIEW_EMPTY = "Hover a result to see it here.";

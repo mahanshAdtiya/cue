@@ -45,7 +45,7 @@ export function RecentlyWatched({ items }: { items: LibraryMedia[] }) {
                 <span className="text-fg hover:text-gold-2 truncate text-sm font-medium">
                   {item.title}
                 </span>
-                <span className="text-(color:--color-label) text-label font-mono tracking-[.08em] uppercase">
+                <span className="text-(color:--color-cap) text-label font-mono tracking-[.08em] uppercase">
                   {mediaSub(item)}
                 </span>
               </Link>

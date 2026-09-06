@@ -41,7 +41,7 @@ export function MediaCard({ item, priority, rank, sub }: MediaCardProps) {
           {item.title}
         </Link>
         {sub ?? (
-          <span className="text-(color:--color-label) text-mini font-mono tracking-[.08em] uppercase">
+          <span className="text-(color:--color-cap) text-mini font-mono tracking-[.08em] uppercase">
             {mediaSub(item)}
           </span>
         )}
