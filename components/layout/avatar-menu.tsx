@@ -65,13 +65,6 @@ export function AvatarMenu({ name, email }: { name: string; email: string }) {
             </strong>
             <span className="text-mut text-[13px] break-all">{email}</span>
           </div>
-
-          <Link href="/profile" className={ROW}>
-            View profile
-            <Icon name="arrow-right" size={16} className={GLYPH} />
-            <RouteLoad label="Profile" />
-          </Link>
-
           <button
             type="button"
             onClick={signOut}

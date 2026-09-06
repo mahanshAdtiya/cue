@@ -41,8 +41,6 @@ export type NavLink = {
 export const NAV_LINKS = [
   { href: "/home", label: "Home"},
   { href: "/explore", label: "Explore", activeOn: ["/title"]},
-  { href: "/library", label: "My Library" },
-  { href: "/people", label: "People", activeOn: ["/person"] },
 ] as const satisfies readonly NavLink[];
 
 export type ToastKind = "success" | "error" | "info";
