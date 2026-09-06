@@ -494,3 +494,11 @@ export const EPISODE_UNWATCHED_TOAST = {
   label: "Episode unmarked",
   message: "Progress rolled back.",
 } as const;
+
+export const REMOVE_FROM_LIST_LABEL = "Remove from list";
+
+export const REMOVED_FROM_LIST_TOAST = {
+  kind: "info",
+  label: "Removed from your list",
+  message: "It is out of your library. Add it again any time.",
+} as const;

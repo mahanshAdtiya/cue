@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 
-type Variant = "primary" | "secondary" | "pill";
+type Variant = "primary" | "secondary" | "danger" | "pill";
 type Size = "md" | "sm";
 
 const BASE =
@@ -16,6 +16,13 @@ const VARIANTS = {
      action beside it. Distinct from `pill`, which is the small top-bar chip. */
   secondary: {
     base: "border-line-2 text-fg-2 hover:border-gold-55 hover:text-gold-2 rounded-md border font-medium active:translate-y-px",
+    md: "min-h-11 px-4.5 py-[13px] text-sm",
+    sm: "min-h-10 px-4 py-2.5 text-[13px]",
+  },
+  /* Destructive twin of `secondary`: same box, no gold anywhere, so the
+     danger colour is not competing with a gold hover further down the sheet. */
+  danger: {
+    base: "border-line-2 text-mut hover:border-danger hover:text-danger rounded-md border font-medium active:translate-y-px",
     md: "min-h-11 px-4.5 py-[13px] text-sm",
     sm: "min-h-10 px-4 py-2.5 text-[13px]",
   },

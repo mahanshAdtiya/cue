@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useOptimistic, useTransition } from "react";
 
-import { setFavorite, setStatus } from "@/actions/user-media";
+import { removeFromList, setFavorite, setStatus } from "@/actions/user-media";
 import {
   FAVORITE_ADD_LABEL,
   FAVORITE_ADDED_TOAST,
@@ -11,6 +11,7 @@ import {
   FAVORITE_REMOVED_TOAST,
   FAVORITE_REMOVE_LABEL,
   NEXT_STATUS_ACTIONS,
+  REMOVED_FROM_LIST_TOAST,
   REWATCH_TOAST,
   STATUS_TOASTS,
   UNTRACKED_STATUS_ACTION,
@@ -89,6 +90,23 @@ export function useMediaTracking(seed: TrackingSeed) {
     });
   }
 
+  function remove() {
+    startTransition(async () => {
+      showStatus(null);
+
+      const state = await removeFromList({ mediaKey: seed.mediaKey });
+
+      if (state.error) {
+        toast.err(state.error);
+        if (state.redirectTo) router.push(state.redirectTo);
+        return;
+      }
+
+      toast.show(REMOVED_FROM_LIST_TOAST);
+      router.refresh();
+    });
+  }
+
   return {
     status,
     isFavorite,
@@ -97,5 +115,6 @@ export function useMediaTracking(seed: TrackingSeed) {
     favoriteLabel,
     advanceStatus,
     toggleFavorite,
+    remove,
   };
 }

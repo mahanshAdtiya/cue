@@ -6,6 +6,7 @@ import { StarRating } from "@/components/ui/star-rating";
 import {
   COUNT_TOKEN,
   MEDIA_UNTRACKED_LABEL,
+  REMOVE_FROM_LIST_LABEL,
   TITLE_PROGRESS_FINISHED,
   TITLE_PROGRESS_NOT_STARTED,
   TITLE_PROGRESS_UP_NEXT,
@@ -103,6 +104,18 @@ export function TitleTracking({
         <Icon name="star" size={16} filled={tracking.isFavorite} />
         {tracking.favoriteLabel}
       </Button>
+
+      {tracking.status === "WANT_TO_WATCH" ? (
+        <Button
+          variant="danger"
+          size="sm"
+          disabled={tracking.busy}
+          onClick={tracking.remove}
+          className="disabled:opacity-60"
+        >
+          {REMOVE_FROM_LIST_LABEL}
+        </Button>
+      ) : null}
 
       <span className="flex-1" />
 

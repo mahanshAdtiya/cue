@@ -10,6 +10,7 @@ const FAVORITED_UNTRACKED_STATUS: UserMediaStatus = "WATCHED";
 const RATED_UNTRACKED_STATUS: UserMediaStatus = "WATCHED";
 const FINISHED_STATUS: UserMediaStatus = "WATCHED";
 const STARTED_STATUS: UserMediaStatus = "CURRENTLY_WATCHING";
+const REMOVABLE_STATUS: UserMediaStatus = "WANT_TO_WATCH";
 
 const ZERO_COUNTS: UserMediaCounts = {
   WANT_TO_WATCH: 0,
@@ -145,7 +146,7 @@ export async function setUserMediaFavorite(input: {
 
     const [entry] = await tx
       .update(userMedia)
-      .set({ isFavorite: input.isFavorite, updatedAt: new Date() })
+      .set({ isFavorite: input.isFavorite, archivedAt: null, updatedAt: new Date() })
       .where(ownRow(input.userId, mediaId))
       .returning();
 
@@ -205,7 +206,7 @@ export async function setUserMediaStatus(input: {
 
       [entry] = await tx
         .update(userMedia)
-        .set({ status: input.status, updatedAt: new Date() })
+        .set({ status: input.status, archivedAt: null, updatedAt: new Date() })
         .where(ownRow(input.userId, mediaId))
         .returning();
     }
@@ -412,7 +413,7 @@ export async function setUserMediaRating(input: {
 
     const [entry] = await tx
       .update(userMedia)
-      .set({ rating: input.rating, updatedAt: new Date() })
+      .set({ rating: input.rating, archivedAt: null, updatedAt: new Date() })
       .where(ownRow(input.userId, mediaId))
       .returning();
 
@@ -623,6 +624,7 @@ export async function setUserMediaEpisode(input: {
           status,
           currentSeason: furthest?.seasonNumber ?? null,
           currentEpisode: furthest?.episodeNumber ?? null,
+          archivedAt: null,
           updatedAt: new Date(),
         },
       });
@@ -638,5 +640,30 @@ export async function setUserMediaEpisode(input: {
       );
 
     return { watched: watched?.total ?? 0 };
+  });
+}
+
+export async function archiveUserMedia(input: {
+  userId: string;
+  key: MediaKey;
+}): Promise<{ archived: boolean }> {
+  return db.transaction(async (tx) => {
+    const mediaId = await findMediaId(tx, input.key);
+
+    if (!mediaId) return { archived: false };
+
+    const rows = await tx
+      .update(userMedia)
+      .set({ archivedAt: new Date(), updatedAt: new Date() })
+      .where(
+        and(
+          ownRow(input.userId, mediaId),
+          eq(userMedia.status, REMOVABLE_STATUS),
+          isNull(userMedia.archivedAt),
+        ),
+      )
+      .returning({ id: userMedia.id });
+
+    return { archived: rows.length > 0 };
   });
 }

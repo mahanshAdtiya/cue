@@ -18,6 +18,7 @@ import { userMediaStatus } from "@/lib/db/schema/user-media";
 import type { UserMediaStatus } from "@/lib/db/schema/user-media";
 import {
   addUserMediaWatch,
+  archiveUserMedia,
   findMediaByExternalId,
   removeUserMediaWatch,
   setUserMediaFavorite,
@@ -367,6 +368,42 @@ export async function setEpisodeWatched(
     });
 
     return { watched };
+  } catch (error) {
+    console.error(error);
+    return { error: TRACKING_FAILED_MESSAGE };
+  }
+}
+
+export type RemoveInput = {
+  mediaKey: string;
+};
+
+export type RemoveState = {
+  error?: string;
+  redirectTo?: string;
+  removed?: boolean;
+};
+
+export async function removeFromList(input: RemoveInput): Promise<RemoveState> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { error: SIGN_IN_REQUIRED_MESSAGE, redirectTo: SIGN_IN_PATH };
+  }
+
+  const ref = toMediaRef(input.mediaKey);
+
+  if (!ref.success) {
+    return { error: TRACKING_FAILED_MESSAGE };
+  }
+
+  try {
+    const { archived } = await archiveUserMedia({
+      userId: user.id,
+      key: ref.data,
+    });
+
+    return { removed: archived };
   } catch (error) {
     console.error(error);
     return { error: TRACKING_FAILED_MESSAGE };
